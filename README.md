@@ -1,2 +1,2 @@
 # Loup-Garou-JDA
-Le projet de recoder un jeu de Loup-Garou sur discord en utilisant la JDA.
+Ce projet a pour but de recréer un jeu de loup-garou sur discord en utilisant l'API JDA.
