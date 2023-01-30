@@ -21,11 +21,13 @@ import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
 
 public class LGBot {
     private static final CommandManager cm = new CommandManager();
@@ -37,16 +39,18 @@ public class LGBot {
         String TOKEN;
 
         try (
-                InputStream tStream = LGBot.class.getClassLoader().getResourceAsStream("TOKEN");
-                InputStreamReader tStreamReader = new InputStreamReader(tStream);
-                BufferedReader tReader = new BufferedReader(tStreamReader)
+                InputStream tStream = LGBot.class.getClassLoader().getResourceAsStream("TOKEN")
         ) {
-            TOKEN = tReader.readLine();
+            assert tStream != null;
+            try (InputStreamReader tStreamReader = new InputStreamReader(tStream);
+                 BufferedReader tReader = new BufferedReader(tStreamReader)
+            ) {
+                TOKEN = tReader.readLine();
+            }
         } catch (IOException e) {
             return;
         }
 
-        System.out.println("Token: " + TOKEN);
         JDABuilder builder = JDABuilder.createDefault(TOKEN,
                 GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS));
 
@@ -93,8 +97,6 @@ public class LGBot {
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS);
         builder.setLargeThreshold(100);
     }
-
-
 
     private static void loadRoles() {
         Roles.addRole(new Role("Villageoi", "Villageoi", Clan.VILLAGE, Emotes.getEmote("villager"), null, new Villager()));
