@@ -168,6 +168,7 @@ public class GameRunning {
                 }
 
                 if (System.currentTimeMillis() > game.getUtils().getTime() && game.getUtils().getDay()) {
+                    game.getMessagesManager().getVotesMessage().delete().queue();
                     long count = 0;
                     Player target = null;
                     for (Player player : game.getUtils().getVotes().keySet()) {

@@ -30,7 +30,8 @@ public class MainCreationEvent extends ListenerAdapter {
         if (!message.getId().equals(event.getMessageId())) return;
         if (message.getEmbeds().size() == 1) {
             MessageEmbed embed = message.getEmbeds().get(0);
-            if (Objects.requireNonNull(embed.getTitle()).equalsIgnoreCase("La partie " + game.getName() + " de " + game.getHost().getEffectiveName() + " !")) {
+            if (Objects.requireNonNull(embed.getTitle()).equalsIgnoreCase("La partie " + game.getName() +
+                    " de " + game.getHost().getEffectiveName() + " !")) {
                 switch (e) {
                     case "add roles":
                         try {
@@ -63,8 +64,7 @@ public class MainCreationEvent extends ListenerAdapter {
                                                 .build()
                                 ).addActionRow(
                                         Button.danger("cancel", "Annuler")
-                                )
-                                .queue();
+                                ).queue();
                         break;
                     case "remove":
                         GamesInfo.removePlayer(player);
@@ -79,7 +79,8 @@ public class MainCreationEvent extends ListenerAdapter {
                             if (game.getGameRunning().starting())
                                 event.reply("La partie va commencer !").setEphemeral(true).queue();
                             else
-                                event.reply("Il n'y a pas assez de joueurs pour démarrer la partie !").setEphemeral(true).queue();
+                                event.reply("Il n'y a pas assez de joueurs pour démarrer la partie !")
+                                        .setEphemeral(true).queue();
                         } else {
                             game.setState(GameState.WAITING);
                             event.reply("Le démarrage a été annulé !").setEphemeral(true).queue();

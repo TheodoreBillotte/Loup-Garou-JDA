@@ -1,24 +1,24 @@
 package fr.theobosse.lgbot.game.roles;
 
 import fr.theobosse.lgbot.game.*;
-import fr.theobosse.lgbot.utils.ChatManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-import java.util.Objects;
+import java.util.ArrayList;
 
 public class Hunter extends GameActions {
+
+    ArrayList<Player> shooting = new ArrayList<>();
 
     @Override
     public void onNightDeath(Player player) {
         GameUtils utils = player.getGame().getUtils();
         utils.setTime(Long.MAX_VALUE);
         sendDeathMessage(player);
-        ChatManager.setAction(player.getMember(), "hunt");
     }
 
     @Override
@@ -26,36 +26,42 @@ public class Hunter extends GameActions {
         GameUtils utils = player.getGame().getUtils();
         utils.setTime(Long.MAX_VALUE);
         sendDeathMessage(player);
-        ChatManager.setAction(player.getMember(), "hunt");
     }
 
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        if (!event.getComponentId().equals("kill")) return;
         Member member = event.getMember();
-        assert member != null;
-        Message message = event.getMessage();
+        if (member == null) return;
         Player player = GamesInfo.getPlayer(member);
-        String action = ChatManager.getAction(member);
+        if (player == null) return;
+        if (!shooting.contains(player)) return;
+        Game game = player.getGame();
+        if (player.getRole().getName().equals("Chasseur")) {
+            event.reply("Choisissez la personne à tuer !")
+                    .addActionRow(
+                            game.getMessages().getPlayerListSelectInteraction("hunt", "Cible").build()
+                    ).setEphemeral(true).queue();
+        }
+    }
+
+    @Override
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        if (!event.getComponentId().equals("hunt")) return;
+        Member member = event.getMember();
+        if (member == null) return;
+        Player player = GamesInfo.getPlayer(member);
         if (player == null) return;
         Game game = player.getGame();
-        Member target;
-        try {
-            target = message.getMentions().getMembers().get(0);
-        } catch (Exception ignored) {
-            try {
-                target = Objects.requireNonNull(GamesInfo.getPlayer(game, message.getContentDisplay())).getMember();
-            } catch (Exception i) {
-                target = null;
-            }
+        if (!shooting.contains(player)) return;
+        if (player.getRole().getName().equals("Chasseur")) {
+            Player target = GamesInfo.getPlayer(game, event.getValues().get(0));
+            if (target == null) return;
+            game.kill(target);
+            game.getUtils().setTime(0L);
+            event.replyEmbeds(getKillMessage(target).build()).queue();
+            shooting.remove(player);
         }
-        if (target == null) return;
-        if (action == null || !action.equals("hunt")) return;
-        Player t = GamesInfo.getPlayer(target);
-        ChatManager.removeAction(member);
-        assert t != null;
-        game.kill(t);
-        sendKillMessage(t);
-        game.getUtils().setTime(0L);
     }
 
 
@@ -63,13 +69,17 @@ public class Hunter extends GameActions {
     private void sendKillMessage(Player target) {
         Game game = target.getGame();
         TextChannel village = game.getChannelsManager().getVillageChannel();
-        village.sendMessageEmbeds(getKillMessage(target).build()).complete();
+        village.sendMessageEmbeds(getKillMessage(target).build()).queue();
     }
 
     private void sendDeathMessage(Player player) {
+        shooting.add(player);
         Game game = player.getGame();
         TextChannel village = game.getChannelsManager().getVillageChannel();
-        village.sendMessageEmbeds(getDeathMessage().build()).complete();
+        village.sendMessageEmbeds(getDeathMessage().build())
+                .addActionRow(
+                        Button.success("kill", "Tuer !")
+                ).queue();
     }
 
 
@@ -85,7 +95,8 @@ public class Hunter extends GameActions {
     private EmbedBuilder getDeathMessage() {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Le chasseur est mort cette nuit !");
-        eb.addField("Pour tuer, entrez le pseudo de la personne ciblé !", "Faites le bon choix !", false);
+        eb.addField("Pour tuer, cliquez sur le boutton ci-dessous et entrez le pseudo de votre cible !",
+                "Faites le bon choix !", false);
         eb.setFooter("Choisissez bien votre cible !");
         return eb;
     }

@@ -17,6 +17,7 @@ public class VoteEvent extends ListenerAdapter {
         if (member == null) return;
         if (player == null) return;
         Game game = player.getGame();
+        if (!game.getUtils().getDay()) return;
 
         if (game.getUtils().getVoters().get(player) != null) {
             Player old = game.getUtils().getVoters().get(player);
@@ -24,10 +25,12 @@ public class VoteEvent extends ListenerAdapter {
         }
 
         Player voted = GamesInfo.getPlayer(game, event.getValues().get(0));
+        if (voted == null) return;
         game.getUtils().getVoters().put(player, voted);
         game.getUtils().getVotes().putIfAbsent(voted, 0);
         game.getUtils().getVotes().replace(voted, game.getUtils().getVotes().get(voted) + 1);
-        event.reply("Vous avez voté pour " + event.getValues().get(0)).setEphemeral(true).queue();
+        event.reply("Vous avez voté pour " + voted.getMember().getAsMention()).setEphemeral(true).queue();
+        game.getMessages().updateVotesMessages();
     }
 
 }

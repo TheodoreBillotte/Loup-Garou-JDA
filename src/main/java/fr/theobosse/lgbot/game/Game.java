@@ -76,8 +76,9 @@ public class Game {
 
 
     public boolean canJoin(Member member) {
-        if (options.isBanned(member)) return false;
-        return !options.gameIsOnInvite() || options.isInvited(member);
+        return state.equals(GameState.WAITING) &&
+                !options.isBanned(member) &&
+                (!options.gameIsOnInvite() || options.isInvited(member));
     }
 
     public String getName() {

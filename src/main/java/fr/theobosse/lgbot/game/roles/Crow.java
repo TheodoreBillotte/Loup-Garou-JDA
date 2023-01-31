@@ -4,67 +4,70 @@ import fr.theobosse.lgbot.game.Game;
 import fr.theobosse.lgbot.game.GameActions;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
-import fr.theobosse.lgbot.utils.ChatManager;
+import fr.theobosse.lgbot.game.enums.Rounds;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public class Crow extends GameActions {
 
     @Override
     public void onPlay(Player player) {
-        Member member = player.getMember();
-        Game game = player.getGame();
         sendMessage(player);
-        ChatManager.setAction(member, "crow");
     }
 
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        User user = event.getAuthor();
-        Player player = GamesInfo.getPlayer(user);
-        String action = ChatManager.getAction(user);
-
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        if (!event.getComponentId().equals("crow")) return;
+        Member member = event.getMember();
+        Player player = GamesInfo.getPlayer(member);
         if (player == null) return;
-        if (action == null) return;
-        if (!action.equals("crow")) return;
-        User toVoteM = null;
-
-        try {
-            toVoteM = event.getMessage().getMentions().getUsers().get(0);
-        } catch (Exception ignored) {}
+        if (!player.isAlive()) return;
         Game game = player.getGame();
-        Player toVote;
-
-        if (toVoteM == null) {
-            String tag = event.getMessage().getContentDisplay();
-            toVote = GamesInfo.getPlayer(player.getGame(), tag);
-        } else
-            toVote = GamesInfo.getPlayer(toVoteM);
-
-        if (toVote == null) return;
-        if (!toVote.isAlive()) return;
-        if (!(toVote.getGame() == player.getGame())) return;
-        game.getUtils().getVotes().put(toVote, 2);
-        ChatManager.removeAction(user);
-        user.openPrivateChannel().complete().sendMessageEmbeds(getTargetMessage(toVote).build()).complete();
+        if (!game.getUtils().getRound().equals(Rounds.CROW)) return;
+        if (!player.getRole().getName().equals("Corbeau")) return;
+        event.reply("Choisissez la personne que vous souhaitez voter.")
+                .addActionRow(
+                        game.getMessages().getPlayerListSelectInteraction("crow", "Cible").build()
+                ).setEphemeral(true).queue();
     }
 
+    @Override
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        if (!event.getComponentId().equals("crow")) return;
+        Member member = event.getMember();
+        Player player = GamesInfo.getPlayer(member);
+        if (player == null) return;
+        if (!player.isAlive()) return;
+        Game game = player.getGame();
+        if (game.getUtils().getRound() == null || !game.getUtils().getRound().equals(Rounds.CROW)) return;
+        if (!player.getRole().getName().equals("Corbeau")) return;
+        String value = event.getValues().get(0);
+
+        Player toVote = GamesInfo.getPlayer(player.getGame(), value);
+        if (toVote == null) return;
+        if (!toVote.isAlive()) return;
+        game.getUtils().getVotes().put(toVote, 2);
+        event.replyEmbeds(getTargetMessage(toVote).build())
+                .setEphemeral(true).queue();
+        game.getUtils().setTime(0L);
+    }
 
     private void sendMessage(Player player) {
-        User user = player.getMember().getUser();
-        PrivateChannel p = user.openPrivateChannel().complete();
-        p.sendMessageEmbeds(getMessage().build()).complete();
+        TextChannel village = player.getGame().getChannelsManager().getVillageChannel();
+        village.sendMessageEmbeds(getMessage().build()).addActionRow(
+                Button.success("crow", "Voter")
+        ).queue();
     }
 
     private EmbedBuilder getMessage() {
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("C'est à vous de jouer !");
-        eb.addField("Entrez le pseudo de la personne que vous souhaitez voter.",
-                "Entrez le pseudo / mentionnez la personne", false);
+        eb.setTitle("C'est au corbeau de jouer !");
+        eb.addField("Cliquez sur le boutton ci-dessous et entrez le pseudo de votre cible !",
+                "Selectionnez votre cible dans le menu déroulant", false);
         eb.setFooter("Faites le bon choix, le village compte sur vous !");
         return eb;
     }
@@ -76,4 +79,5 @@ public class Crow extends GameActions {
         eb.setFooter("Esperons que vous ayez fait le bon choix !");
         return eb;
     }
+
 }
