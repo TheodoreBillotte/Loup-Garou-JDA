@@ -2,14 +2,9 @@ package fr.theobosse.lgbot.listeners;
 
 import fr.theobosse.lgbot.game.Game;
 import fr.theobosse.lgbot.game.GamesInfo;
-import fr.theobosse.lgbot.game.Options;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.jetbrains.annotations.NotNull;
 
 public class JoinEvent extends ListenerAdapter {
 
@@ -24,6 +19,11 @@ public class JoinEvent extends ListenerAdapter {
         if (game == null) return;
         if (!game.canJoin(member)) {
             event.reply("Vous ne pouvez pas rejoindre cette partie.").setEphemeral(true).queue();
+            return;
+        }
+
+        if (GamesInfo.getPlayer(member) != null) {
+            event.reply("Vous êtes déjà dans une partie.").setEphemeral(true).queue();
             return;
         }
 

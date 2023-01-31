@@ -133,7 +133,8 @@ public class LGBot {
                 new JoinEvent(),
                 new VoteEvent(),
                 new VoteButtonEvent(),
-                new CancelAction()
+                new CancelAction(),
+                new RoleEvent()
         );
     }
 }

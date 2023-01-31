@@ -5,7 +5,6 @@ import fr.theobosse.lgbot.game.enums.Clan;
 import fr.theobosse.lgbot.game.enums.Rounds;
 import fr.theobosse.lgbot.game.roles.NULL;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 public class Role {
 
@@ -16,6 +15,8 @@ public class Role {
     private final Rounds round;
     private final GameActions actions;
 
+    private final String description;
+
     public Role(String name, String subName, Clan clan, CustomEmoji emote,
                 Rounds round, GameActions actions) {
         this.name = name;
@@ -24,6 +25,7 @@ public class Role {
         this.emoji = emote;
         this.round = round;
         this.actions = actions;
+        this.description = "Aucune description";
 
         if (actions == null)
             actions = new NULL();
@@ -53,5 +55,9 @@ public class Role {
 
     public GameActions getActions() {
         return actions;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

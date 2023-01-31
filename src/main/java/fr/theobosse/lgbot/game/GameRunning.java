@@ -90,8 +90,6 @@ public class GameRunning {
 
                 if (start[0]) {
                     game.getMessages().sendStartMessage();
-                    for (Player player : game.getUtils().getPlayers())
-                        game.getMessages().sendPlayerRoleMessage(player);
                     start[0] = false;
                 }
 

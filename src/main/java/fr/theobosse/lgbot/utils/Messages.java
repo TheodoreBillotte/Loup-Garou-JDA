@@ -264,6 +264,7 @@ public class Messages {
         eb.setFooter("Amusez-vous bien !");
 
         eb.addField("Votre role pour cette partie est:", player.getRole().getName(), false);
+        eb.addField("Votre objectif: ", player.getRole().getDescription(), false);
         return eb;
     }
 
@@ -413,8 +414,8 @@ public class Messages {
         game.getChannelsManager().getVillageChannel().sendMessageEmbeds(getDeathMessage(player).build()).complete();
     }
 
-    public void sendPlayerRoleMessage(Player player) {
-        player.getMember().getUser().openPrivateChannel().complete().sendMessageEmbeds(getPlayerRoleMessage(player).build()).complete();
+    public void sendPlayerRoleMessage(Player player, ComponentInteraction interaction) {
+        interaction.replyEmbeds(getPlayerRoleMessage(player).build()).setEphemeral(true).queue();
     }
 
     public static void sendErrorMessage(MessageChannel channel, String message, Double timeToDelete) {
