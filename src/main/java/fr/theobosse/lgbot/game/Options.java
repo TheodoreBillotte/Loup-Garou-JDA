@@ -8,10 +8,12 @@ import java.util.List;
 public class Options {
 
     private boolean onInvite = true;
-    private boolean deadAreMuted = false;
+    private boolean deadAreMuted = true;
+    private boolean nightMute = false;
 
     private int dayTime = 30;
     private int nightTime = 30;
+    private int maxPlayers = 18;
 
     private final List<Member> invitedList = new ArrayList<>();
     private final List<Member> bannedList = new ArrayList<>();
@@ -49,7 +51,13 @@ public class Options {
         return dayTime;
     }
 
+    public boolean isNightMute() {
+        return nightMute;
+    }
 
+    public int getMaxPlayers() {
+        return maxPlayers;
+    }
 
     public void setInvite(boolean invite) {
         this.onInvite = invite;
@@ -81,5 +89,13 @@ public class Options {
 
     public void setNightTime(int nightTime) {
         this.nightTime = nightTime;
+    }
+
+    public void setNightMute(boolean nightMute) {
+        this.nightMute = nightMute;
+    }
+
+    public void setMaxPlayers(int maxPlayers) {
+        this.maxPlayers = maxPlayers;
     }
 }

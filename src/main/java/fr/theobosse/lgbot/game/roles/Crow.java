@@ -67,7 +67,7 @@ public class Crow extends GameActions {
     private EmbedBuilder getMessage() {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("C'est au corbeau de jouer !");
-        eb.addField("Cliquez sur le boutton ci-dessous et entrez le pseudo de votre cible !",
+        eb.addField("Cliquez sur le bouton ci-dessous et entrez le pseudo de votre cible !",
                 "Selectionnez votre cible dans le menu déroulant", false);
         eb.setFooter("Faites le bon choix, le village compte sur vous !");
         return eb;

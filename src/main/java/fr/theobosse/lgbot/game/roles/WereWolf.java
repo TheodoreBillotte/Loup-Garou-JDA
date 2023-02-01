@@ -118,7 +118,7 @@ public class WereWolf extends GameActions {
             } catch (Exception ignored) {}
         });
 
-        eb.addField("Pour voter:", "cliquez sur le boutton ci-dessous et selectionnez la personne pour qui vous " +
+        eb.addField("Pour voter:", "cliquez sur le bouton ci-dessous et sélectionnez la personne pour qui vous " +
                 "souhaitez voter",false);
         return eb;
     }

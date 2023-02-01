@@ -83,7 +83,7 @@ public class LittleGirl extends GameActions {
     private EmbedBuilder getPFMessage() {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Voici le récapitulatif de cette nuit !");
-        eb.addField("Si vous êtes la petite fille:", "cliquez sur le boutton ci-dessous", false);
+        eb.addField("Si vous êtes la petite fille:", "cliquez sur le bouton ci-dessous", false);
         return eb;
     }
 

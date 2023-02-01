@@ -71,7 +71,7 @@ public class Seer extends GameActions {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("C'est à la voyante de jouer !");
         eb.setFooter("Faites le bon choix !");
-        eb.addField("Pour utilisez votre pouvoir:", "Cliquez sur le boutton ci-dessous", false);
+        eb.addField("Pour utilisez votre pouvoir:", "Cliquez sur le bouton ci-dessous", false);
         return eb;
     }
 

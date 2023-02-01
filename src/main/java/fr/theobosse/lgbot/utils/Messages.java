@@ -7,7 +7,6 @@ import fr.theobosse.lgbot.game.enums.GameState;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -16,8 +15,9 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
+import java.util.Objects;
 
 public class Messages {
     private final Game game;
@@ -32,7 +32,7 @@ public class Messages {
         eb.setAuthor(game.getHost().getNickname());
         eb.setThumbnail(game.getHost().getUser().getEffectiveAvatarUrl());
         eb.setColor(game.getState().equals(GameState.STARTING) ? Color.GREEN : Color.ORANGE);
-        eb.setFooter("Vous pouvez cliquer sur les bouttons ci-dessous pour " +
+        eb.setFooter("Vous pouvez cliquer sur les boutons ci-dessous pour " +
                 "séléctionner des actions.", "https://images.emojiterra.com/openmoji/v12.2/128px/1f43a.png");
 
         eb.addBlankField(false);
@@ -57,8 +57,8 @@ public class Messages {
         eb.setTitle("Vous pouvez ajouter des roles !");
         eb.setAuthor(game.getHost().getNickname());
         eb.setColor(game.getHost().getColor());
-        eb.setFooter("Vous pouvez cliquer sur les bouttons ci-dessous pour " +
-                "séléctionner des roles.");
+        eb.setFooter("Vous pouvez cliquer sur les boutons ci-dessous pour " +
+                "sélectionner des roles.");
         eb.addBlankField(false);
         List<Role> usedRoles = new ArrayList<>();
         game.getUtils().getRoles().forEach(role -> {
@@ -80,7 +80,7 @@ public class Messages {
         eb.setTitle("Vous pouvez retirer des roles !");
         eb.setAuthor(game.getHost().getNickname());
         eb.setColor(game.getHost().getColor());
-        eb.setFooter("Vous pouvez cliquer sur les bouttons ci-dessous pour séléctionner des roles.");
+        eb.setFooter("Vous pouvez cliquer sur les boutons ci-dessous pour sélectionner des roles.");
         eb.addBlankField(false);
         List<Role> usedRoles = new ArrayList<>();
         game.getUtils().getRoles().forEach(role -> {
@@ -91,7 +91,7 @@ public class Messages {
         });
 
         if (game.getUtils().getRoles().isEmpty())
-            eb.addField("Il n'y a aucun roles dans la partie !", "Mais vous pouvez en ajouter en cliquant sur le boutton ✅ ci-dessus!", false);
+            eb.addField("Il n'y a aucun roles dans la partie !", "Mais vous pouvez en ajouter en cliquant sur le bouton ✅ ci-dessus!", false);
 
         eb.addBlankField(false);
         return eb;
@@ -104,11 +104,16 @@ public class Messages {
         eb.setTitle("Les options");
         eb.setColor(game.getHost().getColor());
         eb.setThumbnail(Objects.requireNonNull(Emotes.getEmote("crow")).getImageUrl());
-        eb.setFooter("Vous pouvez cliquer sur les bouttons ci-dessous pour modifier des options.");
+        eb.setFooter("Vous pouvez cliquer sur les boutons ci-dessous pour modifier des options.");
 
-        eb.addField("Temps du jour", String.valueOf(game.getOptions().getDayTime()), true);
+        eb.addField("Durée des votes (s)", String.valueOf(game.getOptions().getDayTime()), true);
         eb.addBlankField(true);
-        eb.addField("Temps de la nuit", String.valueOf(game.getOptions().getNightTime()), true);
+        eb.addField("Temps de chaque rôle (s)", String.valueOf(game.getOptions().getNightTime()), true);
+        eb.addField("Mute les joueurs morts", game.getOptions().isDeadAreMuted() ? "Oui" : "Non", true);
+        eb.addBlankField(true);
+        eb.addField("Mute lors de la nuit", game.getOptions().isNightMute() ? "Oui" : "Non", true);
+        eb.addField("Joueurs max", String.valueOf(game.getOptions().getMaxPlayers()), true);
+        eb.addBlankField(false);
 
         game.getOptions().getInvitedList().forEach(m -> sb.append(m.getEffectiveName()));
         eb.addField("Invités:", sb.length() > 0 ? sb.toString() : "Aucun", true);
@@ -122,13 +127,13 @@ public class Messages {
         eb.setTitle("Les invitations");
         eb.setColor(game.getHost().getColor());
         eb.setThumbnail(Objects.requireNonNull(Emotes.getEmote("fox")).getImageUrl());
-        eb.setFooter("Vous pouvez cliquer sur les bouttons ci-dessous pour gérer les invitations.");
+        eb.setFooter("Vous pouvez cliquer sur les boutons ci-dessous pour gérer les invitations.");
 
         // fields
         List<Member> invited = game.getOptions().getInvitedList();
         eb.addField("Invités:", "Il y a " + invited.size() + " invité(s) !", false);
         invited.forEach(member -> eb.addField(member.getEffectiveName(), "EN ATTENTE...", true));
-        if (invited.isEmpty()) eb.addField("Personne n'a été invité !", "Mais vous pouvez en ajouter en cliquant sur les bouttons ci-dessous", true);
+        if (invited.isEmpty()) eb.addField("Personne n'a été invité !", "Mais vous pouvez en ajouter en cliquant sur les boutons ci-dessous", true);
 
         eb.addField("La partie est", game.getOptions().gameIsOnInvite() ? "FERMEE" : "OUVERTE", false);
 
@@ -142,26 +147,30 @@ public class Messages {
         eb.setColor(game.getState().equals(GameState.STARTING) ? Color.GREEN : Color.ORANGE);
         eb.setTitle("Salle d'attente");
         eb.setFooter("Patientez s'il vous plaît...");
-        eb.addField("Pour quitter:", "cliquez sur le boutton ci-dessous", true);
+        eb.addField("Pour quitter:", "cliquez sur le bouton ci-dessous", true);
 
         if (game.getState().equals(GameState.STARTING))
-            eb.addField("DEMARRE DANS", String.valueOf(game.getStartTime()), false);
+            eb.addField("DÉMARRE DANS", String.valueOf(game.getStartTime()), false);
         return eb;
     }
 
     public EmbedBuilder getInfoMessage() {
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setColor(game.getState().equals(GameState.STARTING) ? Color.GREEN : Color.ORANGE);
+        eb.setColor(game.getState().equals(GameState.WAITING) &&
+                (game.getUtils().getPlayers().size() < game.getOptions().getMaxPlayers()) ? Color.GREEN : Color.RED);
         eb.setTitle("La partie " + game.getName() + " de " + game.getHost().getEffectiveName());
-        eb.setFooter("Vous pouvez rejoindre la partie en cliquant sur le bouttons ci-dessous !");
-        eb.addField("Il y a actuellement " + game.getUtils().getPlayers().size() + " joueur(s).", "Vous pouvez rejoindre avec le bouttons ci-dessous !", false);
+        eb.setFooter("Vous pouvez rejoindre la partie en cliquant sur le boutons ci-dessous !");
+        eb.addField("Il y a actuellement " + game.getUtils().getPlayers().size() + " / " +
+                        game.getOptions().getMaxPlayers() + " " + "joueur(s).",
+                "Vous pouvez rejoindre avec le boutons ci-dessous !", false);
 
         if (game.getOptions().gameIsOnInvite())
             eb.addField("Il faut être invité pour pouvoir y entrer...", "Demandez à l'host si vous ne l'êtes pas !", false);
 
         if (game.getState().equals(GameState.WAITING))
             eb.addField("La partie est en attente de joueurs...", "N'hésitez pas à la rejoindre !", false);
-        else eb.addField("La partie est en train d'être lancé !", "Rejoignez vite avant qu'il ne soit trop tard !", false);
+        else
+            eb.addField("La partie est en train d'être lancé !", "Il est désormais trop tard pour rejoindre !", false);
 
         return eb;
     }
@@ -178,7 +187,7 @@ public class Messages {
             sb.append(role.getName()).append(" - ");
         sb.append("Maire");
 
-        eb.addField("Si vous n'avez pas votre rôle, regardez les messages privés que le bot vous a envoyé !", "||||", false);
+        eb.addField("Pour obtenir votre role:", "cliquez sur le bouton ci-dessous !", false);
         eb.addField("Les roles présents dans la partie sont:", sb.toString(), false);
 
 
@@ -189,7 +198,7 @@ public class Messages {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setColor(Color.ORANGE);
         eb.setTitle("C'est le moment de voter !");
-        eb.setFooter("Vous pouvez voter en cliquant sur le bouttons ci-dessous !");
+        eb.setFooter("Vous pouvez voter en cliquant sur le boutons ci-dessous !");
         eb.addField("Le nombre de votes:", "Si vous n'avez pas voté, n'hésitez pas !", false);
 
         for (Player player : game.getUtils().getAlive())
@@ -339,10 +348,13 @@ public class Messages {
         Message msg = interaction.replyEmbeds(getOptionsMessage().build())
                         .addActionRow(
                                 Button.primary("invite", "Invitations"),
-                                Button.primary("day duration", "Durée du jour"),
-                                Button.primary("night duration", "Durée de la nuit")
+                                Button.primary("day duration", "Temps des votes"),
+                                Button.primary("night duration", "Temps de jeu"),
+                                Button.primary("max players", "Joueurs max")
                         )
                         .addActionRow(
+                                Button.primary("mute dead", "Mute joueurs morts"),
+                                Button.primary("mute night", "Mute durant la nuit"),
                                 Button.danger("kick", "Kick"),
                                 Button.danger("ban", "Ban")
                         )

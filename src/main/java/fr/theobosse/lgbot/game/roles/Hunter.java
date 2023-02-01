@@ -90,7 +90,7 @@ public class Hunter extends GameActions {
     private EmbedBuilder getDeathMessage() {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Le chasseur est mort cette nuit !");
-        eb.addField("Pour tuer, cliquez sur le boutton ci-dessous et entrez le pseudo de votre cible !",
+        eb.addField("Pour tuer, cliquez sur le bouton ci-dessous et entrez le pseudo de votre cible !",
                 "Faites le bon choix !", false);
         eb.setFooter("Choisissez bien votre cible !");
         return eb;

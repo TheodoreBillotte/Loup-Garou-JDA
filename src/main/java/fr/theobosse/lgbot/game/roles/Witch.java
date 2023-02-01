@@ -114,10 +114,10 @@ public class Witch extends GameActions {
 
         eb.addBlankField(false);
         if (revive && !game.getUtils().getKills().isEmpty())
-            eb.addField("Vous pouvez ressusciter quelqu'un avec", "Le boutton Ressusciter ci-dessous", false);
+            eb.addField("Vous pouvez ressusciter quelqu'un avec", "Le bouton Ressusciter ci-dessous", false);
 
         if (death)
-            eb.addField("Vous pouvez tuer quelqu'un avec", "Le boutton Tuer ci-dessous", false);
+            eb.addField("Vous pouvez tuer quelqu'un avec", "Le bouton Tuer ci-dessous", false);
 
         if (!death && !revive)
             eb.addField("Vous avez déjà tout utilisé !", "Vous ne servez plus à rien maintenant !", false);
@@ -130,7 +130,7 @@ public class Witch extends GameActions {
         EmbedBuilder eb = new EmbedBuilder();
 
         eb.setTitle("C'est au tour de la sorcière !");
-        eb.addField("Cliquez sur le boutton ci-dessous pour jouer !",
+        eb.addField("Cliquez sur le bouton ci-dessous pour jouer !",
                 "vous aurez aussi des informations sur la partie !", false);
         eb.setFooter("La partie est entre vos mains !");
         return eb;

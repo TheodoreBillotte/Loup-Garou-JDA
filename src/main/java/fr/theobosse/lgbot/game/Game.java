@@ -76,7 +76,8 @@ public class Game {
 
 
     public boolean canJoin(Member member) {
-        return state.equals(GameState.WAITING) &&
+        return utils.getPlayers().size() < options.getMaxPlayers() &&
+                state.equals(GameState.WAITING) &&
                 !options.isBanned(member) &&
                 (!options.gameIsOnInvite() || options.isInvited(member));
     }
