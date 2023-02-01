@@ -78,7 +78,8 @@ public class Witch extends GameActions {
                 playing.remove(player);
                 revive.put(player, false);
                 game.getUtils().getKills().remove(target);
-                sendActionMessage(target, "ressuscité", event);
+                sendActionMessage(target, "ressusciter", event);
+                game.getGameRunning().played();
             } else {
                 event.reply("Vous avez déjà utilisé votre pouvoir").setEphemeral(true).queue();
             }
@@ -87,7 +88,8 @@ public class Witch extends GameActions {
                 playing.remove(player);
                 death.put(player, false);
                 game.getUtils().getKills().add(target);
-                sendActionMessage(target, "tué", event);
+                sendActionMessage(target, "tuer", event);
+                game.getGameRunning().played();
             } else {
                 event.reply("Vous avez déjà utilisé votre pouvoir").setEphemeral(true).queue();
             }

@@ -33,7 +33,8 @@ public class JoinEvent extends ListenerAdapter {
         game.join(member);
         game.getMessages().updateInvitesMessages();
         game.getMessages().updateMainMessage();
-        event.deferEdit().queue();
+        event.reply("Vous avez rejoint la partie, rendez-vous dans le salon d'attente !")
+                .setEphemeral(true).queue();
     }
 
 }

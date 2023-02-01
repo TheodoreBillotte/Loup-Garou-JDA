@@ -54,7 +54,7 @@ public class Crow extends GameActions {
         game.getUtils().getVotes().put(toVote, 2);
         event.replyEmbeds(getTargetMessage(toVote).build())
                 .setEphemeral(true).queue();
-        game.getUtils().setTime(0L);
+        game.getGameRunning().played();
     }
 
     private void sendMessage(Player player) {

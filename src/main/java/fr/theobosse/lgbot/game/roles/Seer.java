@@ -56,6 +56,7 @@ public class Seer extends GameActions {
             return;
         }
         event.replyEmbeds(getRoleMessage(target).build()).setEphemeral(true).queue();
+        player.getGame().getGameRunning().played();
         usePower(player);
     }
 

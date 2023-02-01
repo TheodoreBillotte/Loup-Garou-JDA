@@ -26,6 +26,8 @@ public class Game {
     private GameState state;
     private Integer startTime;
 
+    private int playing;
+
     public Game(Member host, String name) {
         pHost = new Player(host, this);
         messages = new Messages(this);
@@ -181,6 +183,7 @@ public class Game {
                 getUtils().setRounds(rounds.get(0));
             else
                 getUtils().setRounds(null);
+        gameRunning.setPlaying(0);
     }
 
 

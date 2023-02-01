@@ -10,6 +10,13 @@ import java.util.*;
 
 public class GameRunning {
     private final Game game;
+    private int start_timer;
+    private boolean start = true;
+    private boolean wakeup = false;
+    private boolean goSleep = true;
+    private boolean hasVoted = false;
+
+    private int playing = 0;
 
     public GameRunning(Game game) {
         this.game = game;
@@ -22,18 +29,16 @@ public class GameRunning {
         game.getMessages().updateInfoMessages();
         game.setState(GameState.STARTING);
         game.setStartTime(15);
-        final int[] i = {15};
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                game.setStartTime(i[0]);
-
-                if ((i[0] >= 0 && i[0] <= 3) || i[0] == 5 || i[0] == 10 || i[0] == 15) {
-                    game.getMessages().updateWaitingMessages();
+                game.setStartTime(start_timer);
+                if (start_timer == 15)
                     game.getMessages().updateInfoMessages();
-                    game.getMessages().updateMainMessage();
-                }
+
+                game.getMessages().updateWaitingMessages();
+                game.getMessages().updateMainMessage();
 
 
                 if (game.getState().equals(GameState.WAITING)) {
@@ -43,7 +48,7 @@ public class GameRunning {
                     timer.purge();
                 }
 
-                if (i[0] == 0 && game.getState().equals(GameState.STARTING)) {
+                if (start_timer == 0 && game.getState().equals(GameState.STARTING)) {
                     game.getMessagesManager().getInfoMessage().delete().complete();
                     game.getChannelsManager().getWaitingChannel().delete().complete();
                     game.getChannelsManager().getCreationChannel().delete().complete();
@@ -51,7 +56,7 @@ public class GameRunning {
                     timer.cancel();
                     timer.purge();
                 }
-                i[0]--;
+                start_timer--;
             }
         }, 1000, 1000);
         return true;
@@ -79,18 +84,12 @@ public class GameRunning {
         game.getChannelsManager().setWerewolfChannel(lChannel);
         game.getChannelsManager().setVoiceChannel(voiceChannel);
 
-        final boolean[] start = {true};
-        final boolean[] wakeup = {false};
-        final boolean[] goSleep = {true};
-        final boolean[] hasVoted = {false};
-        final List<Player> hasWakeUp = new ArrayList<>();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-
-                if (start[0]) {
+                if (start) {
                     game.getMessages().sendStartMessage();
-                    start[0] = false;
+                    start = false;
                 }
 
                 if (isFinish() && game.getUtils().getTime() < System.currentTimeMillis()) {
@@ -100,16 +99,19 @@ public class GameRunning {
                     return;
                 }
 
-                if (goSleep[0]) {
+                if (goSleep) {
                     game.getMessages().sendSleepMessage();
                     game.getUtils().getPlayers().forEach(p -> {
                                 try {
                                     p.getRole().getActions().onSleep(p);
                                 } catch (Exception ignored) {}
                             });
-                    goSleep[0] = false;
+                    goSleep = false;
                 }
 
+
+                if (playing == 0 && !game.getUtils().getDay())
+                    game.getUtils().setTime(0L);
                 if (System.currentTimeMillis() > game.getUtils().getTime() && !game.getUtils().getDay()) {
                     for (Player p : game.getUtils().getPlayers()) {
                         try {
@@ -121,49 +123,38 @@ public class GameRunning {
                     }
 
                     game.nextRound();
-
                     if (game.getUtils().getRound() == null) {
                         game.getUtils().setDay(true);
                     } else {
-                        int count = 0;
                         for (Player p : game.getUtils().getPlayers()) {
                             try {
                                 if (p.getRole().getRound().equals(game.getUtils().getRound()) && p.isAlive()) {
                                     p.getRole().getActions().onPlay(p);
-                                    count++;
+                                    playing++;
                                 }
                             } catch (Exception ignored) {}
                         }
-                        if (count == 0)
-                            game.getUtils().setTime(0L);
-                        else
-                            game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getNightTime()));
+                        game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getNightTime()));
                     }
                 }
 
-                if (game.getUtils().getDay() && !hasVoted[0] && !wakeup[0] && !isFinish() && game.getUtils().getTime() < System.currentTimeMillis()) {
-                    for (Player p : game.getUtils().getKills()) {
-                        if (!hasWakeUp.contains(p)) {
-                            p.getRole().getActions().onNightDeath(p);
-                            hasWakeUp.add(p);
-                        }
-                    }
+                if (game.getUtils().getDay() && !hasVoted && !wakeup && !isFinish() && game.getUtils().getTime() < System.currentTimeMillis()) {
+                    for (Player p : game.getUtils().getKills())
+                        p.getRole().getActions().onNightDeath(p);
 
-                    if (hasWakeUp.size() == game.getUtils().getKills().size()) {
-                        game.getUtils().getDead().addAll(game.getUtils().getKills());
-                        game.getMessages().sendKillsMessage();
-                        game.getUtils().getKills().forEach(game::kill);
-                        hasVoted[0] = true;
-                        wakeup[0] = true;
-                    }
+                    game.getUtils().getDead().addAll(game.getUtils().getKills());
+                    game.getMessages().sendKillsMessage();
+                    game.getUtils().getKills().forEach(game::kill);
+                    hasVoted = true;
+                    wakeup = true;
                 }
 
-                if (wakeup[0] && !isFinish()) {
+                if (wakeup && !isFinish()) {
                     game.getMessages().sendWakeUpMessage();
                     game.getUtils().getPlayers().forEach(p -> p.getRole().getActions().onWakeUp(p));
                     game.getMessages().sendVotesMessage();
                     game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getDayTime()));
-                    wakeup[0] = false;
+                    wakeup = false;
                 }
 
                 if (System.currentTimeMillis() > game.getUtils().getTime() && game.getUtils().getDay()) {
@@ -189,8 +180,8 @@ public class GameRunning {
                     game.getUtils().getVotes().clear();
 
                     game.getUtils().setDay(false);
-                    hasVoted[0] = false;
-                    goSleep[0] = true;
+                    hasVoted = false;
+                    goSleep = true;
                 }
             }
         }, 50, 50);
@@ -254,4 +245,17 @@ public class GameRunning {
 
         return false;
     }
+
+    public int getPlaying() {
+        return playing;
+    }
+
+    public void setPlaying(int playing) {
+        this.playing = playing;
+    }
+
+    public void played() {
+        playing--;
+    }
+
 }
