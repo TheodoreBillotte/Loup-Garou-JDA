@@ -42,9 +42,10 @@ public class GameUtils {
 
     public List<Rounds> getRounds() {
         List<Rounds> rounds = new ArrayList<>();
-        for (Role role : roles)
-            if (!rounds.contains(role.getRound()))
-                rounds.add(role.getRound());
+        for (Rounds round : Rounds.values())
+            for (Role role : roles)
+                if (role.getRound() == round && !rounds.contains(round))
+                    rounds.add(round);
 
         return rounds;
     }

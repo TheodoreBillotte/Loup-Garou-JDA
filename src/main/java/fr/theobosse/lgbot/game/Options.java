@@ -7,11 +7,11 @@ import java.util.List;
 
 public class Options {
 
-    private boolean onInvite = false;
+    private boolean onInvite = true;
     private boolean deadAreMuted = false;
 
-    private int dayTime = 10;
-    private int nightTime = 40;
+    private int dayTime = 30;
+    private int nightTime = 30;
 
     private final List<Member> invitedList = new ArrayList<>();
     private final List<Member> bannedList = new ArrayList<>();

@@ -6,20 +6,14 @@ import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
 import fr.theobosse.lgbot.game.enums.Clan;
 import fr.theobosse.lgbot.game.enums.Rounds;
-import fr.theobosse.lgbot.utils.ChatManager;
-import fr.theobosse.lgbot.utils.Emotes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Random;
 
 public class WereWolf extends GameActions {
@@ -61,17 +55,16 @@ public class WereWolf extends GameActions {
     }
 
 
-
     @Override
-    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        if (!event.getComponentId().equals("werewolf")) return;
         Member member = event.getMember();
         String msgId = event.getMessageId();
         MessageChannel channel = event.getChannel();
-        Player player = GamesInfo.getPlayer(member);
+        if (member == null) return;
         if (member.getUser().isBot()) return;
+        Player player = GamesInfo.getPlayer(member);
         if (player == null) return;
-
-        Emoji e = event.getReaction().getEmoji();
         Game game = player.getGame();
 
         if (messages.get(game) == null) return;
@@ -80,38 +73,27 @@ public class WereWolf extends GameActions {
         if (!player.getRole().getRound().equals(Rounds.WEREWOLF)) return;
         if (!msgId.equals(messages.get(game).getId())) return;
 
-        if (e.equals(Emotes.getEmote("werewolf"))) {
-            String action = ChatManager.getAction(member);
-            messages.get(game).removeReaction(Objects.requireNonNull(Emotes.getEmote("werewolf")), member.getUser()).complete();
-            if (action == null || !action.equals("lgVote"))
-                ChatManager.setAction(member, "lgVote");
-            else
-                ChatManager.removeAction(member);
-        }
+        event.reply("Choisissez votre cible")
+                .addActionRow(
+                        game.getMessages().getPlayerListSelectInteraction("lgVote", "Votre cible").build()
+                ).setEphemeral(true).queue();
     }
 
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (!event.getChannelType().equals(ChannelType.TEXT))
-            return;
-        TextChannel channel = event.getChannel().asTextChannel();
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        if (!event.getComponentId().equals("lgVote")) return;
         Member member = event.getMember();
-
         if (member == null) return;
         Player player = GamesInfo.getPlayer(member);
-        String action = ChatManager.getAction(member);
-
         if (player == null) return;
-        if (action == null || !action.equalsIgnoreCase("lgVote")) return;
-        if (!channel.equals(player.getGame().getChannelsManager().getWerewolfChannel())) return;
-        Player p = GamesInfo.getPlayer(event.getMessage(), player.getGame());
+        Game game = player.getGame();
+        if (game.getUtils().getRound() == null || !game.getUtils().getRound().equals(Rounds.WEREWOLF)) return;
+        Player target = GamesInfo.getPlayer(game, event.getValues().get(0));
+        if (target == null) return;
 
-        if (p == null) return;
-        if (p.getGame() != player.getGame()) return;
-
-        vote(player, p);
+        vote(player, target);
         updateMessage(player);
-        event.getMessage().delete().complete();
+        event.reply("Vous avez voté pour " + target.getMember().getAsMention()).setEphemeral(true).queue();
     }
 
 
@@ -120,7 +102,7 @@ public class WereWolf extends GameActions {
         Game game = player.getGame();
 
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("C'est l'heure de voter !!");
+        eb.setTitle("C'est l'heure de voter !");
         eb.setFooter("N'oubliez pas de voter pour une cible !");
         eb.addField("Voilà les votes:", "Si vous n'avez pas voté, n'hésitez pas !", false);
         votes.putIfAbsent(game, new HashMap<>());
@@ -135,8 +117,8 @@ public class WereWolf extends GameActions {
             } catch (Exception ignored) {}
         });
 
-        eb.addField("Pour voter:", Emotes.getString(Objects.requireNonNull(Emotes.getEmote("werewolf"))),
-                false);
+        eb.addField("Pour voter:", "cliquez sur le boutton ci-dessous et selectionnez la personne pour qui vous " +
+                "souhaitez voter",false);
         return eb;
     }
 
@@ -152,9 +134,10 @@ public class WereWolf extends GameActions {
     public void sendMessage(Player player) {
         Game game = player.getGame();
 
-        Message msg =
-                game.getChannelsManager().getWerewolfChannel().sendMessageEmbeds(getMessage(player).build()).complete();
-        msg.addReaction(Objects.requireNonNull(Emotes.getEmote("werewolf"))).complete();
+        Message msg = game.getChannelsManager().getWerewolfChannel().sendMessageEmbeds(getMessage(player).build())
+                .addActionRow(
+                        Button.primary("werewolf", "Voter")
+                ).complete();
         messages.put(game, msg);
     }
 
@@ -175,14 +158,8 @@ public class WereWolf extends GameActions {
 
     public void vote(Player player, Player voted) {
         Game game = player.getGame();
-
-        if (votes.containsKey(game)) {
-            votes.get(game).put(player, voted);
-        } else {
-            HashMap<Player, Player> vote = new HashMap<>();
-            vote.put(player, voted);
-            votes.put(game, vote);
-        }
+        votes.putIfAbsent(game, new HashMap<>());
+        votes.get(game).put(player, voted);
     }
 
     public long getVotes(Player voted) {

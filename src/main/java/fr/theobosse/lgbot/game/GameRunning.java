@@ -160,15 +160,15 @@ public class GameRunning {
 
                 if (wakeup[0] && !isFinish()) {
                     game.getMessages().sendWakeUpMessage();
-                    game.getUtils().getPlayers().forEach(p ->
-                            p.getRole().getActions().onWakeUp(p));
+                    game.getUtils().getPlayers().forEach(p -> p.getRole().getActions().onWakeUp(p));
                     game.getMessages().sendVotesMessage();
                     game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getDayTime()));
                     wakeup[0] = false;
                 }
 
                 if (System.currentTimeMillis() > game.getUtils().getTime() && game.getUtils().getDay()) {
-                    game.getMessagesManager().getVotesMessage().delete().queue();
+                    if (game.getMessagesManager().getVotesMessage() != null)
+                        game.getMessagesManager().getVotesMessage().delete().queue();
                     long count = 0;
                     Player target = null;
                     for (Player player : game.getUtils().getVotes().keySet()) {

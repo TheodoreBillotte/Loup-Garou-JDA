@@ -142,7 +142,7 @@ public class Messages {
         eb.setColor(game.getState().equals(GameState.STARTING) ? Color.GREEN : Color.ORANGE);
         eb.setTitle("Salle d'attente");
         eb.setFooter("Patientez s'il vous plaît...");
-        eb.addField("Vous pouvez quitter avec", Emotes.getString(Emotes.getEmote("error")), true);
+        eb.addField("Pour quitter:", "cliquez sur le boutton ci-dessous", true);
 
         if (game.getState().equals(GameState.STARTING))
             eb.addField("DEMARRE DANS", String.valueOf(game.getStartTime()), false);

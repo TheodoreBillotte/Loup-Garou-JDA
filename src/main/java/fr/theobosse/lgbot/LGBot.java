@@ -93,15 +93,13 @@ public class LGBot {
         builder.enableCache(CacheFlag.MEMBER_OVERRIDES);
         builder.setMemberCachePolicy(MemberCachePolicy.VOICE.or(MemberCachePolicy.OWNER));
         builder.setChunkingFilter(ChunkingFilter.NONE);
-        builder.disableIntents(GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_MESSAGE_TYPING);
-        builder.enableIntents(GatewayIntent.GUILD_MEMBERS);
         builder.setLargeThreshold(100);
     }
 
     private static void loadRoles() {
-        Roles.addRole(new Role("Villageoi", "Villageoi", Clan.VILLAGE, Emotes.getEmote("villager"), null, new Villager()));
+        Roles.addRole(new Role("Villageois", "Villageois", Clan.VILLAGE, Emotes.getEmote("villager"), null, new Villager()));
         Roles.addRole(new Role("Chasseur", "Chasseur", Clan.VILLAGE, Emotes.getEmote("hunter"), null, new Hunter()));
-        Roles.addRole(new Role("Petite Fille", "PF", Clan.VILLAGE, Emotes.getEmote("little_girl"), Rounds.LITTLE_GIRL, new LittleGirl()));
+        Roles.addRole(new Role("Petite Fille", "PF", Clan.VILLAGE, Emotes.getEmote("little_girl"), Rounds.WEREWOLF, new LittleGirl()));
         Roles.addRole(new Role("Sorcière", "Sorcière", Clan.VILLAGE, Emotes.getEmote("witch"), Rounds.WITCH, new Witch()));
         // Roles.addRole(new Role("Cupidon", "Cupidon", Clan.VILLAGE, Emotes.getEmote("cupid"), Rounds.CUPID, null));
         Roles.addRole(new Role("Corbeau", "Corbeau", Clan.VILLAGE, Emotes.getEmote("crow"), Rounds.CROW, new Crow()));

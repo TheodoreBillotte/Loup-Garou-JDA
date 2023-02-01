@@ -3,18 +3,12 @@ package fr.theobosse.lgbot.game.roles;
 import fr.theobosse.lgbot.game.GameActions;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
-import fr.theobosse.lgbot.utils.ChatManager;
-import fr.theobosse.lgbot.utils.Emotes;
-import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 public class Seer extends GameActions {
 
@@ -22,54 +16,43 @@ public class Seer extends GameActions {
 
     @Override
     public void onPlay(Player player) {
-        ChatManager.setAction(player.getMember(), "seer");
         power.put(player, true);
         sendMessage(player);
     }
 
     @Override
     public void onEndRound(Player player) {
-        ChatManager.removeAction(player.getMember());
         power.remove(player);
     }
 
-    /*
     @Override
-    public void onPrivateMessageReactionAdd(@NotNull PrivateMessageReactionAddEvent event) {
-        User user = event.getUser();
-        Player player = GamesInfo.getPlayer(user);
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        if (!event.getComponentId().equals("seer")) return;
+        Player player = GamesInfo.getPlayer(event.getMember());
         if (player == null) return;
         if (!canUsePower(player)) return;
-        if (ChatManager.getAction(user) == null || !ChatManager.getAction(user).equals("seer"))
-            ChatManager.setAction(user, "seer");
-        else ChatManager.removeAction(user);
+
+        event.reply("Choisissez une personne à voir")
+                .addActionRow(
+                        player.getGame().getMessages().getPlayerListSelectInteraction("seer", "Cible").build()
+                ).setEphemeral(true).queue();
     }
-    */
 
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        User user = event.getAuthor();
-        Player player = GamesInfo.getPlayer(user);
-        String action = ChatManager.getAction(user);
-        if (!event.getChannelType().equals(ChannelType.PRIVATE))
-            return;
-        PrivateChannel channel = event.getChannel().asPrivateChannel();
+    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+        if (!event.getComponentId().equals("seer")) return;
+        Player player = GamesInfo.getPlayer(event.getMember());
         if (player == null) return;
-        if (!player.isAlive()) return;
-        if (action == null) return;
-        if (!action.equals("seer")) return;
-        Player p = GamesInfo.getPlayer(event.getMessage(), player.getGame());
-
-        if (p == player) {
-            Messages.sendErrorMessage(channel, "Vous ne pouvez pas regarder votre role !", 5D);
+        if (!canUsePower(player)) return;
+        Player target = GamesInfo.getPlayer(player.getGame(), event.getValues().get(0));
+        if (target == null) return;
+        if (!target.isAlive()) return;
+        if (!(target.getGame() == player.getGame())) return;
+        if (target == player) {
+            event.reply("Vous ne pouvez pas regarder votre role !").setEphemeral(true).queue();
             return;
         }
-
-        if (p == null) return;
-        if (!p.isAlive()) return;
-        if (!(p.getGame() == player.getGame())) return;
-        sendRoleMessage(player, p);
-        ChatManager.removeAction(user);
+        event.replyEmbeds(getRoleMessage(target).build()).setEphemeral(true).queue();
         usePower(player);
     }
 
@@ -83,16 +66,18 @@ public class Seer extends GameActions {
 
     private EmbedBuilder getMessage() {
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle("C'est à vous de jouer !");
+        eb.setTitle("C'est à la voyante de jouer !");
         eb.setFooter("Faites le bon choix !");
-        /* eb.addField("Utilisez votre pouvoir en cliquant sur", Emotes.getString(Emotes.getEmote("seer")), false); */
+        eb.addField("Pour utilisez votre pouvoir:", "Cliquez sur le boutton ci-dessous", false);
         return eb;
     }
 
     private void sendMessage(Player player) {
-        player.getMember().getUser().openPrivateChannel().complete().
-                sendMessageEmbeds(getMessage().build()).complete().
-                addReaction(Objects.requireNonNull(Emotes.getEmote("seer"))).complete();
+        player.getGame().getChannelsManager().getVillageChannel().
+                sendMessageEmbeds(getMessage().build())
+                .addActionRow(
+                        Button.success("seer", "Voir un role")
+                ).complete();
     }
 
     private EmbedBuilder getRoleMessage(Player player) {
@@ -103,8 +88,4 @@ public class Seer extends GameActions {
         return eb;
     }
 
-    private void sendRoleMessage(Player player, Player target) {
-        player.getMember().getUser().openPrivateChannel().complete().
-                sendMessageEmbeds(getRoleMessage(target).build()).complete();
-    }
 }

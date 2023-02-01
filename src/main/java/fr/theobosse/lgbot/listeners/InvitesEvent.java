@@ -3,17 +3,13 @@ package fr.theobosse.lgbot.listeners;
 import fr.theobosse.lgbot.game.Game;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
-import fr.theobosse.lgbot.utils.ChatManager;
 import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.selections.EntitySelectMenu;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -41,6 +37,7 @@ public class InvitesEvent extends ListenerAdapter {
                     case "activate":
                         game.getOptions().setInvite(!game.getOptions().gameIsOnInvite());
                         game.getMessages().updateInvitesMessages();
+                        game.getMessages().updateInfoMessages();
                         if (game.getOptions().gameIsOnInvite())
                             event.reply("Les invitations sont maintenant activées !").setEphemeral(true).queue();
                         else

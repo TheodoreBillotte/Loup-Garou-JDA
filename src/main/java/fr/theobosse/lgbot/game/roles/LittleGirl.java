@@ -1,12 +1,16 @@
 package fr.theobosse.lgbot.game.roles;
 
-import fr.theobosse.lgbot.game.*;
+import fr.theobosse.lgbot.game.Game;
+import fr.theobosse.lgbot.game.GameActions;
+import fr.theobosse.lgbot.game.GamesInfo;
+import fr.theobosse.lgbot.game.Player;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
-import net.dv8tion.jda.api.entities.channel.concrete.PrivateChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -18,15 +22,27 @@ public class LittleGirl extends GameActions {
 
     @Override
     public void onPlay(Player player) {
-        nightMessages.remove(player);
-        nightMessages.put(player, new ArrayList<>());
+        if (!nightMessages.containsKey(player))
+            nightMessages.put(player, new ArrayList<>());
+        else
+            nightMessages.get(player).clear();
     }
 
     @Override
     public void onEndRound(Player player) {
-        Member member = player.getMember();
-        PrivateChannel pc = member.getUser().openPrivateChannel().complete();
-        pc.sendMessageEmbeds(getMessage(player).build()).complete();
+        player.getGame().getChannelsManager().getVillageChannel().sendMessageEmbeds(getPFMessage().build())
+                .addActionRow(
+                        Button.primary("PF", "Voir")
+                ).queue();
+    }
+
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        if (!event.getComponentId().equals("PF")) return;
+        Player player = GamesInfo.getPlayer(event.getMember());
+        if (player == null) return;
+        if (player.getRole().getSubName().equals("PF"))
+            event.replyEmbeds(getMessage(player).build()).setEphemeral(true).queue();
     }
 
     @Override
@@ -62,6 +78,13 @@ public class LittleGirl extends GameActions {
             });
         } catch (Exception ignored) {}
         return players;
+    }
+
+    private EmbedBuilder getPFMessage() {
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setTitle("Voici le récapitulatif de cette nuit !");
+        eb.addField("Si vous êtes la petite fille:", "cliquez sur le boutton ci-dessous", false);
+        return eb;
     }
 
     private EmbedBuilder getMessage(Player player) {

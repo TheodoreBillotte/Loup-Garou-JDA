@@ -33,6 +33,7 @@ public class JoinEvent extends ListenerAdapter {
         game.join(member);
         game.getMessages().updateInvitesMessages();
         game.getMessages().updateMainMessage();
+        event.deferEdit().queue();
     }
 
 }
