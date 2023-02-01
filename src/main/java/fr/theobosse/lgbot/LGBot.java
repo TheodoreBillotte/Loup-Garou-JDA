@@ -130,7 +130,6 @@ public class LGBot {
                 new BanEvent(),
                 new JoinEvent(),
                 new VoteEvent(),
-                new VoteButtonEvent(),
                 new CancelAction(),
                 new RoleEvent()
         );

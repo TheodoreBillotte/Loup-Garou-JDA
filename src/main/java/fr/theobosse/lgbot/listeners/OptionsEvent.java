@@ -3,6 +3,7 @@ package fr.theobosse.lgbot.listeners;
 import fr.theobosse.lgbot.game.Game;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
+import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -69,8 +70,7 @@ public class OptionsEvent extends ListenerAdapter {
                     case "kick":
                         event.reply("Choisissez la personne à kick !")
                                 .addActionRow(
-                                        game.getMessages().getPlayerListSelectInteraction("kick", "Kick")
-                                                .build()
+                                        Messages.getPlayerListSelectInteraction(game.getUtils().getPlayers(),"kick", "Kick").build()
                                 ).addActionRow(
                                         Button.danger("cancel", "Annuler")
                                 )
@@ -79,8 +79,7 @@ public class OptionsEvent extends ListenerAdapter {
                     case "ban":
                         event.reply("Choisissez la personne à bannir !")
                                 .addActionRow(
-                                        game.getMessages().getPlayerListSelectInteraction("ban", "Bannir")
-                                                .build()
+                                        Messages.getPlayerListSelectInteraction(game.getUtils().getPlayers(),"ban", "Bannir").build()
                                 ).addActionRow(
                                         Button.danger("cancel", "Annuler")
                                 )

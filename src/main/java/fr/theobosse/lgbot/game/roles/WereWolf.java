@@ -6,6 +6,7 @@ import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
 import fr.theobosse.lgbot.game.enums.Clan;
 import fr.theobosse.lgbot.game.enums.Rounds;
+import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -75,7 +76,7 @@ public class WereWolf extends GameActions {
 
         event.reply("Choisissez votre cible")
                 .addActionRow(
-                        game.getMessages().getPlayerListSelectInteraction("lgVote", "Votre cible").build()
+                        Messages.getPlayerListSelectInteraction(game.getUtils().getAlive(), "lgVote", "Votre cible").build()
                 ).setEphemeral(true).queue();
     }
 

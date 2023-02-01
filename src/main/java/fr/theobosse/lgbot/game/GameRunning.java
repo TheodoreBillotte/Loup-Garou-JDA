@@ -111,7 +111,6 @@ public class GameRunning {
                 }
 
                 if (System.currentTimeMillis() > game.getUtils().getTime() && !game.getUtils().getDay()) {
-                    game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getNightTime()));
                     for (Player p : game.getUtils().getPlayers()) {
                         try {
                             if (p.getRole().getRound().equals(game.getUtils().getRound()))
@@ -124,7 +123,6 @@ public class GameRunning {
                     game.nextRound();
 
                     if (game.getUtils().getRound() == null) {
-                        game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getDayTime()));
                         game.getUtils().setDay(true);
                     } else {
                         int count = 0;
@@ -138,6 +136,8 @@ public class GameRunning {
                         }
                         if (count == 0)
                             game.getUtils().setTime(0L);
+                        else
+                            game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getNightTime()));
                     }
                 }
 

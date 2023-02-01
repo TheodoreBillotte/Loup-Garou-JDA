@@ -3,6 +3,7 @@ package fr.theobosse.lgbot.game.roles;
 import fr.theobosse.lgbot.game.GameActions;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
+import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -34,7 +35,9 @@ public class Seer extends GameActions {
 
         event.reply("Choisissez une personne à voir")
                 .addActionRow(
-                        player.getGame().getMessages().getPlayerListSelectInteraction("seer", "Cible").build()
+                        Messages.getPlayerListSelectInteraction(player.getGame().getUtils().getAlive(),
+                        "seer"
+                                , "Cible").build()
                 ).setEphemeral(true).queue();
     }
 

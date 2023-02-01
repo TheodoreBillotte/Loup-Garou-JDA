@@ -5,6 +5,7 @@ import fr.theobosse.lgbot.game.GameActions;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
 import fr.theobosse.lgbot.utils.Emotes;
+import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -48,11 +49,11 @@ public class Witch extends GameActions {
             sendMessage(player, event);
         } else if (event.getComponentId().equals("revive")) {
             event.reply("Choisissez un joueur à ressuciter").addActionRow(
-                    game.getMessages().getPlayerListSelectInteraction("revive", "Cible").build()
+                    Messages.getPlayerListSelectInteraction(game.getUtils().getKills(), "revive", "Cible").build()
             ).setEphemeral(true).queue();
         } else if (event.getComponentId().equals("death")) {
             event.reply("Choisissez un joueur à tuer").addActionRow(
-                    game.getMessages().getPlayerListSelectInteraction("death", "Cible").build()
+                    Messages.getPlayerListSelectInteraction(game.getUtils().getAlive(), "death", "Cible").build()
             ).setEphemeral(true).queue();
         }
     }

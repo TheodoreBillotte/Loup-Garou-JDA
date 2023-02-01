@@ -388,7 +388,7 @@ public class Messages {
     public void sendVotesMessage() {
         Message msg = game.getChannelsManager().getVillageChannel().sendMessageEmbeds(getVotesMessage().build())
                         .addActionRow(
-                                Button.primary("vote", "Voter")
+                                getPlayerListSelectInteraction(game.getUtils().getAlive(), "vote", "Personne à voter").build()
                         ).complete();
         game.getMessagesManager().setVotesMessage(msg);
     }
@@ -415,17 +415,6 @@ public class Messages {
 
     public void sendPlayerRoleMessage(Player player, ComponentInteraction interaction) {
         interaction.replyEmbeds(getPlayerRoleMessage(player).build()).setEphemeral(true).queue();
-    }
-
-    public static void sendErrorMessage(MessageChannel channel, String message, Double timeToDelete) {
-        Message msg = channel.sendMessageEmbeds(getErrorMessage(message).build()).complete();
-        Timer timer = new Timer("error timer", true);
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                msg.delete().complete();
-            }
-        }, (long) (timeToDelete * 1000));
     }
 
     public void deleteAddRoleMessage() {
@@ -496,9 +485,9 @@ public class Messages {
         } catch (Exception ignored) {}
     }
 
-    public SelectMenu.Builder<StringSelectMenu, StringSelectMenu.Builder> getPlayerListSelectInteraction(String id, String placeholder) {
+    public static SelectMenu.Builder<StringSelectMenu, StringSelectMenu.Builder> getPlayerListSelectInteraction(List<Player> players, String id, String placeholder) {
         StringSelectMenu.Builder builder = StringSelectMenu.create(id).setPlaceholder(placeholder);
-        for (Player player : game.getUtils().getPlayers())
+        for (Player player : players)
             builder.addOption(
                     player.getMember().getEffectiveName(),
                     player.getMember().getId(),

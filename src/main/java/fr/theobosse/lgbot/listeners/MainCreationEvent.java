@@ -4,6 +4,7 @@ import fr.theobosse.lgbot.game.Game;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
 import fr.theobosse.lgbot.game.enums.GameState;
+import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -60,7 +61,8 @@ public class MainCreationEvent extends ListenerAdapter {
                     case "host":
                         event.reply("Choisissez le nouvel host !")
                                 .addActionRow(
-                                        game.getMessages().getPlayerListSelectInteraction("host", "Choisissez le nouvel host !")
+                                        Messages.getPlayerListSelectInteraction(game.getUtils().getPlayers(), "host"
+                                                        , "Choisissez le nouvel host !")
                                                 .build()
                                 ).addActionRow(
                                         Button.danger("cancel", "Annuler")

@@ -1,6 +1,7 @@
 package fr.theobosse.lgbot.game.roles;
 
 import fr.theobosse.lgbot.game.*;
+import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -40,7 +41,7 @@ public class Hunter extends GameActions {
         if (player.getRole().getName().equals("Chasseur")) {
             event.reply("Choisissez la personne à tuer !")
                     .addActionRow(
-                            game.getMessages().getPlayerListSelectInteraction("hunt", "Cible").build()
+                            Messages.getPlayerListSelectInteraction(game.getUtils().getAlive(), "hunt", "Cible").build()
                     ).setEphemeral(true).queue();
         }
     }
@@ -65,12 +66,6 @@ public class Hunter extends GameActions {
     }
 
 
-
-    private void sendKillMessage(Player target) {
-        Game game = target.getGame();
-        TextChannel village = game.getChannelsManager().getVillageChannel();
-        village.sendMessageEmbeds(getKillMessage(target).build()).queue();
-    }
 
     private void sendDeathMessage(Player player) {
         shooting.add(player);

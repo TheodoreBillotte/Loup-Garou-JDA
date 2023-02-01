@@ -5,6 +5,7 @@ import fr.theobosse.lgbot.game.GameActions;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
 import fr.theobosse.lgbot.game.enums.Rounds;
+import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -31,7 +32,7 @@ public class Crow extends GameActions {
         if (!player.getRole().getName().equals("Corbeau")) return;
         event.reply("Choisissez la personne que vous souhaitez voter.")
                 .addActionRow(
-                        game.getMessages().getPlayerListSelectInteraction("crow", "Cible").build()
+                        Messages.getPlayerListSelectInteraction(game.getUtils().getAlive(), "crow", "Cible").build()
                 ).setEphemeral(true).queue();
     }
 
