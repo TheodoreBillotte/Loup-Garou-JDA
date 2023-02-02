@@ -16,6 +16,8 @@ public class GameRunning {
     private boolean goSleep = true;
     private boolean hasVoted = false;
 
+    private boolean messageSent = false;
+
     private int playing = 0;
 
     public GameRunning(Game game) {
@@ -29,6 +31,7 @@ public class GameRunning {
         game.getMessages().updateInfoMessages();
         game.setState(GameState.STARTING);
         game.setStartTime(15);
+        start_timer = 15;
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -39,7 +42,6 @@ public class GameRunning {
 
                 game.getMessages().updateWaitingMessages();
                 game.getMessages().updateMainMessage();
-
 
                 if (game.getState().equals(GameState.WAITING)) {
                     game.getMessages().updateWaitingMessages();
@@ -92,7 +94,32 @@ public class GameRunning {
                     start = false;
                 }
 
-                if (isFinish() && game.getUtils().getTime() < System.currentTimeMillis()) {
+                if (wakeup && !isFinish() && game.getUtils().getMajor() != null) {
+                    if (!messageSent) {
+                        game.getMessages().sendWakeUpMessage();
+                        game.getUtils().getPlayers().forEach(p -> p.getRole().getActions().onWakeUp(p));
+                    }
+
+                    game.getMessages().sendVotesMessage();
+                    game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getDayTime()));
+                    wakeup = false;
+                }
+
+                if (wakeup && !isFinish() && game.getUtils().getMajor() == null) {
+                    game.getMessages().sendWakeUpMessage();
+                    game.getUtils().getPlayers().forEach(p -> p.getRole().getActions().onWakeUp(p));
+                    game.getMessages().sendMajorMessage();
+                    game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getDayTime()));
+                    messageSent = true;
+                    wakeup = false;
+                }
+
+                if (playing == 0 && !game.getUtils().getDay())
+                    game.getUtils().setTime(0L);
+                if (System.currentTimeMillis() < game.getUtils().getTime())
+                    return;
+
+                if (isFinish()) {
                     endGame();
                     timer.cancel();
                     timer.purge();
@@ -102,17 +129,15 @@ public class GameRunning {
                 if (goSleep) {
                     game.getMessages().sendSleepMessage();
                     game.getUtils().getPlayers().forEach(p -> {
-                                try {
-                                    p.getRole().getActions().onSleep(p);
-                                } catch (Exception ignored) {}
-                            });
+                        try {
+                            p.getRole().getActions().onSleep(p);
+                        } catch (Exception ignored) {}
+                    });
                     goSleep = false;
+                    return;
                 }
 
-
-                if (playing == 0 && !game.getUtils().getDay())
-                    game.getUtils().setTime(0L);
-                if (System.currentTimeMillis() > game.getUtils().getTime() && !game.getUtils().getDay()) {
+                if (!game.getUtils().getDay()) {
                     for (Player p : game.getUtils().getPlayers()) {
                         try {
                             if (p.getRole().getRound().equals(game.getUtils().getRound()))
@@ -136,55 +161,55 @@ public class GameRunning {
                         }
                         game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getNightTime()));
                     }
+                    return;
                 }
 
-                if (game.getUtils().getDay() && !hasVoted && !wakeup && !isFinish() && game.getUtils().getTime() < System.currentTimeMillis()) {
+                if (game.getUtils().getDay() && !hasVoted && !wakeup && !isFinish()) {
                     for (Player p : game.getUtils().getKills())
                         p.getRole().getActions().onNightDeath(p);
 
                     game.getUtils().getDead().addAll(game.getUtils().getKills());
                     game.getMessages().sendKillsMessage();
+                    if (game.getUtils().getKills().contains(game.getUtils().getMajor()))
+                        onMajorDeath();
                     game.getUtils().getKills().forEach(game::kill);
                     hasVoted = true;
                     wakeup = true;
+                    return;
                 }
 
-                if (wakeup && !isFinish()) {
-                    game.getMessages().sendWakeUpMessage();
-                    game.getUtils().getPlayers().forEach(p -> p.getRole().getActions().onWakeUp(p));
-                    game.getMessages().sendVotesMessage();
-                    game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getDayTime()));
-                    wakeup = false;
-                }
-
-                if (System.currentTimeMillis() > game.getUtils().getTime() && game.getUtils().getDay()) {
-                    if (game.getMessagesManager().getVotesMessage() != null)
-                        game.getMessagesManager().getVotesMessage().delete().queue();
-                    long count = 0;
-                    Player target = null;
-                    for (Player player : game.getUtils().getVotes().keySet()) {
-                        long nb = game.getUtils().getVotes().get(player);
-                        if (nb > count) {
-                            count = nb;
-                            target = player;
-                        } else if (nb == count)
-                            if (random.nextInt(2) == 0)
-                                target = player;
-                    }
-
+                if (game.getUtils().getDay() && game.getUtils().getMajor() != null) {
+                    Player target = getVoteResult();
                     if (target != null) {
                         target.getRole().getActions().onVoteDeath(target);
                         game.getMessages().sendDeathMessage(target);
                         game.kill(target);
+                        if (target.equals(game.getUtils().getMajor()))
+                            onMajorDeath();
                     }
                     game.getUtils().getVotes().clear();
+                    game.getUtils().getVoters().clear();
 
-                    game.getUtils().setDay(false);
-                    hasVoted = false;
-                    goSleep = true;
+                    if (target == null || !target.equals(game.getUtils().getMajor())) {
+                        game.getUtils().setDay(false);
+                        hasVoted = false;
+                        goSleep = true;
+                    }
+                    return;
+                }
+
+                if (game.getUtils().getDay() && game.getUtils().getMajor() == null) {
+                    Player target = getVoteResult();
+                    if (target == null)
+                        target = game.getUtils().getAlive().get(random.nextInt(game.getUtils().getPlayers().size()));
+                    game.getUtils().setMajor(target);
+                    game.getMessages().sendElectMessage();
+                    game.getUtils().getVotes().clear();
+                    game.getUtils().getVoters().clear();
+                    wakeup = true;
                 }
             }
-        }, 50, 50);
+        }, 500, 500);
     }
 
     public void endGame() {
@@ -244,6 +269,26 @@ public class GameRunning {
         }
 
         return false;
+    }
+
+    public void onMajorDeath() {
+        game.getUtils().setTime(Long.MAX_VALUE);
+        game.getMessages().sendMajorDeathMessage();
+    }
+
+    public Player getVoteResult() {
+        long count = 0;
+        Player target = null;
+        for (Player player : game.getUtils().getVotes().keySet()) {
+            long nb = game.getUtils().getVotes().get(player);
+            if (nb > count) {
+                count = nb;
+                target = player;
+            } else if (nb == count)
+                if (new Random().nextInt(2) == 0)
+                    target = player;
+        }
+        return target;
     }
 
     public int getPlaying() {

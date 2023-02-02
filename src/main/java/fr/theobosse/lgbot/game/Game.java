@@ -4,6 +4,7 @@ import fr.theobosse.lgbot.game.enums.GameState;
 import fr.theobosse.lgbot.game.enums.Rounds;
 import fr.theobosse.lgbot.utils.GuildManager;
 import fr.theobosse.lgbot.utils.Messages;
+import fr.theobosse.lgbot.utils.Roles;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -25,8 +26,6 @@ public class Game {
     private final Options options;
     private GameState state;
     private Integer startTime;
-
-    private int playing;
 
     public Game(Member host, String name) {
         pHost = new Player(host, this);
@@ -57,6 +56,13 @@ public class Game {
         messages.sendMainMessage();
         messages.sendWaitingMessage();
         messages.sendInfoMessage();
+
+
+        // TEST CONFIG
+        options.setNightTime(10);
+        options.setInvite(false);
+        utils.addRole(Roles.getRoleByName("Villageois"));
+        utils.addRole(Roles.getRoleByName("Loup-Garou"));
     }
 
     public void setHost(Player host) {

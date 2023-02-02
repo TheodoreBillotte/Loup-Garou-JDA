@@ -276,12 +276,36 @@ public class Messages {
         return eb;
     }
 
-    public static EmbedBuilder getErrorMessage(String message) {
+    public EmbedBuilder getMajorMessage() {
         EmbedBuilder eb = new EmbedBuilder();
-        eb.setTitle(message);
-        eb.setFooter("Le message va être supprimé...", Objects.requireNonNull(Emotes.getEmote("error")).getImageUrl());
+        eb.setColor(Color.ORANGE);
+        eb.setTitle("Il est temps de choisir le nouveau maire !");
+        eb.setFooter("Vous avez " + game.getOptions().getDayTime() + "s pour choisir !");
+        for (Player player : game.getUtils().getAlive())
+            eb.addField(player.getMember().getEffectiveName(), game.getUtils().getVotes().get(player) == null ? "0" :
+                    String.valueOf(game.getUtils().getVotes().get(player)), true);
 
+        eb.addField("Pour choisir le nouveau maire:",
+                "Selectionnez la personne pour laquelle vous souhaitez voter dans le menu déroulant ci-dessous !",
+                false);
         return eb;
+    }
+
+    private EmbedBuilder getElectMessage() {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Le maire a été élu !");
+        builder.setDescription("Le maire est " + game.getUtils().getMajor().getMember().getAsMention() + " !");
+        builder.setColor(Color.GREEN);
+        return builder;
+    }
+
+    private EmbedBuilder getMajorDeathMessage() {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setColor(Color.RED);
+        builder.setTitle("Le maire est mort");
+        builder.setDescription("C'est à l'ancien maire de choisir qui sera son successeur !");
+        builder.setFooter("C'est une perte tragique !");
+        return builder;
     }
 
 
@@ -391,10 +415,10 @@ public class Messages {
     }
 
     public void sendStartMessage() {
-        Message msg = game.getChannelsManager().getVillageChannel().sendMessageEmbeds(getStartMessage().build())
+        game.getChannelsManager().getVillageChannel().sendMessageEmbeds(getStartMessage().build())
                         .addActionRow(
                                 Button.primary("role", "Voir son rôle")
-                        ).complete();
+                        ).queue();
     }
 
     public void sendVotesMessage() {
@@ -429,24 +453,45 @@ public class Messages {
         interaction.replyEmbeds(getPlayerRoleMessage(player).build()).setEphemeral(true).queue();
     }
 
+    public void sendMajorMessage() {
+        game.getMessagesManager().setMajorMessage(
+                game.getChannelsManager().getVillageChannel().sendMessageEmbeds(getMajorMessage().build())
+                .addActionRow(
+                        getPlayerListSelectInteraction(game.getUtils().getAlive(), "vote major",
+                                "Personne à désigner").build()
+                ).complete());
+    }
+
+    public void sendElectMessage() {
+        game.getChannelsManager().getVillageChannel().sendMessageEmbeds(getElectMessage().build()).queue();
+    }
+
+    public void sendMajorDeathMessage() {
+        game.getChannelsManager().getVillageChannel().sendMessageEmbeds(getMajorDeathMessage().build())
+                .addActionRow(
+                        getPlayerListSelectInteraction(game.getUtils().getAlive(), "major",
+                                "Personne à désigner").build()
+                ).complete();
+    }
+
     public void deleteAddRoleMessage() {
-        game.getMessagesManager().getAddRoleMessage().delete().complete();
+        game.getMessagesManager().getAddRoleMessage().delete().queue();
     }
 
     public void deleteRemoveRoleMessage() {
-        game.getMessagesManager().getRemoveRoleMessage().delete().complete();
+        game.getMessagesManager().getRemoveRoleMessage().delete().queue();
     }
 
     public void deleteOptionsMessage() {
-        game.getMessagesManager().getOptionsMessage().delete().complete();
+        game.getMessagesManager().getOptionsMessage().delete().queue();
     }
 
     public void deleteInvitesMessage() {
-        game.getMessagesManager().getInvitesMessage().delete().complete();
+        game.getMessagesManager().getInvitesMessage().delete().queue();
     }
 
     public void deleteInfoMessage() {
-        game.getMessagesManager().getInfoMessage().delete().complete();
+        game.getMessagesManager().getInfoMessage().delete().queue();
     }
 
 
@@ -497,6 +542,12 @@ public class Messages {
         } catch (Exception ignored) {}
     }
 
+    public void updateMajorMessages() {
+        try {
+            game.getMessagesManager().getMajorMessage().editMessageEmbeds(getMajorMessage().build()).complete();
+        } catch (Exception ignored) {}
+    }
+
     public static SelectMenu.Builder<StringSelectMenu, StringSelectMenu.Builder> getPlayerListSelectInteraction(List<Player> players, String id, String placeholder) {
         StringSelectMenu.Builder builder = StringSelectMenu.create(id).setPlaceholder(placeholder);
         for (Player player : players)
@@ -515,5 +566,4 @@ public class Messages {
             builder.addOption(member.getEffectiveName(), member.getId(), member.getUser().getAsTag());
         return builder;
     }
-
 }

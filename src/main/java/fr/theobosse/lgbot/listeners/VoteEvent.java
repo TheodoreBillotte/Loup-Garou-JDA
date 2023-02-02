@@ -11,7 +11,7 @@ public class VoteEvent extends ListenerAdapter {
 
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
-        if (!event.getComponentId().equals("vote")) return;
+        if (!event.getComponentId().startsWith("vote")) return;
         Member member = event.getMember();
         Player player = GamesInfo.getPlayer(member);
         if (member == null) return;
@@ -21,16 +21,22 @@ public class VoteEvent extends ListenerAdapter {
 
         if (game.getUtils().getVoters().get(player) != null) {
             Player old = game.getUtils().getVoters().get(player);
-            game.getUtils().getVotes().replace(old, game.getUtils().getVotes().get(old) - 1);
+            game.getUtils().getVotes().replace(old, game.getUtils().getVotes().get(old) -
+                    (1 + (game.getUtils().getMajor() != null && game.getUtils().getMajor().equals(player) ? 1 : 0)));
         }
 
         Player voted = GamesInfo.getPlayer(game, event.getValues().get(0));
         if (voted == null) return;
         game.getUtils().getVoters().put(player, voted);
         game.getUtils().getVotes().putIfAbsent(voted, 0);
-        game.getUtils().getVotes().replace(voted, game.getUtils().getVotes().get(voted) + 1);
+        game.getUtils().getVotes().replace(voted, game.getUtils().getVotes().get(voted) + 1 +
+                (game.getUtils().getMajor() != null && game.getUtils().getMajor().equals(player) ? 1 : 0));
         event.reply("Vous avez voté pour " + voted.getMember().getAsMention()).setEphemeral(true).queue();
-        game.getMessages().updateVotesMessages();
+
+        if (event.getComponentId().equals("vote"))
+            game.getMessages().updateVotesMessages();
+        else if (event.getComponentId().equals("vote major"))
+            game.getMessages().updateMajorMessages();
     }
 
 }

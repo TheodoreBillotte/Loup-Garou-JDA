@@ -132,7 +132,8 @@ public class LGBot {
                 new VoteEvent(),
                 new CancelAction(),
                 new RoleEvent(),
-                new MaxPlayersEvent()
+                new MaxPlayersEvent(),
+                new MajorEvent()
         );
     }
 }
