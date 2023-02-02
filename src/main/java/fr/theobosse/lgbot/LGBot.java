@@ -8,6 +8,7 @@ import fr.theobosse.lgbot.game.roles.*;
 import fr.theobosse.lgbot.listeners.*;
 import fr.theobosse.lgbot.utils.CommandManager;
 import fr.theobosse.lgbot.utils.Emotes;
+import fr.theobosse.lgbot.utils.JSONLoader;
 import fr.theobosse.lgbot.utils.Roles;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -35,16 +36,16 @@ public class LGBot {
     public static List<Member> membersList = new ArrayList<>();
     public static JDA jda;
 
+    private static JSONLoader loader;
+
     public static void main(String[] args) throws Exception {
+        loader = new JSONLoader("saves.json");
         String TOKEN;
 
-        try (
-                InputStream tStream = LGBot.class.getClassLoader().getResourceAsStream("TOKEN")
-        ) {
+        try (InputStream tStream = LGBot.class.getClassLoader().getResourceAsStream("TOKEN")) {
             assert tStream != null;
             try (InputStreamReader tStreamReader = new InputStreamReader(tStream);
-                 BufferedReader tReader = new BufferedReader(tStreamReader)
-            ) {
+                 BufferedReader tReader = new BufferedReader(tStreamReader)) {
                 TOKEN = tReader.readLine();
             }
         } catch (IOException e) {
@@ -97,15 +98,15 @@ public class LGBot {
     }
 
     private static void loadRoles() {
+        Roles.addRole(new Role("Loup-Garou", "LG", Clan.WEREWOLF, Emotes.getEmote("werewolf"), Rounds.WEREWOLF, new WereWolf()));
         Roles.addRole(new Role("Villageois", "Villageois", Clan.VILLAGE, Emotes.getEmote("villager"), null, new Villager()));
         Roles.addRole(new Role("Chasseur", "Chasseur", Clan.VILLAGE, Emotes.getEmote("hunter"), null, new Hunter()));
         Roles.addRole(new Role("Petite Fille", "PF", Clan.VILLAGE, Emotes.getEmote("little_girl"), Rounds.WEREWOLF, new LittleGirl()));
         Roles.addRole(new Role("Sorcière", "Sorcière", Clan.VILLAGE, Emotes.getEmote("witch"), Rounds.WITCH, new Witch()));
-        // Roles.addRole(new Role("Cupidon", "Cupidon", Clan.VILLAGE, Emotes.getEmote("cupid"), Rounds.CUPID, null));
         Roles.addRole(new Role("Corbeau", "Corbeau", Clan.VILLAGE, Emotes.getEmote("crow"), Rounds.CROW, new Crow()));
         Roles.addRole(new Role("Voyante", "Voyante", Clan.VILLAGE, Emotes.getEmote("seer"), Rounds.SEER, new Seer()));
+//         Roles.addRole(new Role("Cupidon", "Cupidon", Clan.VILLAGE, Emotes.getEmote("cupid"), Rounds.CUPID, null));
         // Roles.addRole(new Role("Renard", "Renard", Clan.VILLAGE, Emotes.getEmote("fox"), Rounds.FOX, null));
-        Roles.addRole(new Role("Loup-Garou", "LG", Clan.WEREWOLF, Emotes.getEmote("werewolf"), Rounds.WEREWOLF, new WereWolf()));
         // Roles.addRole(new Role("Loup-Garou Blanc", "LGB", Clan.SOLO, Emotes.getEmote("white_werewolf"), Rounds.WEREWOLF, null));
         // Roles.addRole(new Role("Assassin", "Assassin", Clan.SOLO, Emotes.getEmote("killer"), Rounds.KILLER, null));
     }
@@ -133,7 +134,12 @@ public class LGBot {
                 new CancelAction(),
                 new RoleEvent(),
                 new MaxPlayersEvent(),
-                new MajorEvent()
+                new MajorEvent(),
+                new LoadSaveEvent()
         );
+    }
+
+    public static JSONLoader getLoader() {
+        return loader;
     }
 }

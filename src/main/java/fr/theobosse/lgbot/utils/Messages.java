@@ -320,7 +320,9 @@ public class Messages {
                         ).
                         addActionRow(
                                 Button.success("start", "Lancer la partie"),
-                                Button.danger("remove", "Supprimer la partie")
+                                Button.danger("remove", "Supprimer la partie"),
+                                Button.secondary("save", "Sauvegarder la partie"),
+                                Button.secondary("load save", "Charger une partie")
                         ).
                         complete();
         game.getMessagesManager().setMainCreationMessage(msg);

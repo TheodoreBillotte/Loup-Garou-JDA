@@ -17,7 +17,7 @@ public class Game {
 
     private Member host;
     private Player pHost;
-    private final String name;
+    private String name;
     private final Messages messages;
     private final MessagesManager messagesManager;
     private final ChannelsManager channelsManager;
@@ -81,7 +81,9 @@ public class Game {
         this.startTime = startTime;
     }
 
-
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public boolean canJoin(Member member) {
         return utils.getPlayers().size() < options.getMaxPlayers() &&
@@ -138,15 +140,15 @@ public class Game {
 
     public void join(Member member) {
         GamesInfo.addPlayer(member, this);
-        utils.addPlayer(p(member));
+        utils.addPlayer(GamesInfo.getPlayer(member));
         GuildManager.addWaitingPermissions(this, member);
         messages.updateMainMessage();
         messages.updateInfoMessages();
     }
 
     public void quit(Member member) {
-        utils.removePlayer(p(member));
-        GamesInfo.removePlayer(p(member));
+        utils.removePlayer(GamesInfo.getPlayer(member));
+        GamesInfo.removePlayer(GamesInfo.getPlayer(member));
         GuildManager.removeWaitingPermissions(this, member);
         messages.updateMainMessage();
         messages.updateInfoMessages();
@@ -154,7 +156,7 @@ public class Game {
 
     public void ban(Member member) {
         options.addBanned(member);
-        if (utils.getPlayers().contains(p(member)))
+        if (utils.getPlayers().contains(GamesInfo.getPlayer(member)))
             quit(member);
     }
 
@@ -192,8 +194,4 @@ public class Game {
         gameRunning.setPlaying(0);
     }
 
-
-    private Player p(Member member) {
-        return GamesInfo.getPlayer(member);
-    }
 }
