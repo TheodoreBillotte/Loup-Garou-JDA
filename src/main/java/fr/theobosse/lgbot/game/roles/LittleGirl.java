@@ -1,9 +1,9 @@
 package fr.theobosse.lgbot.game.roles;
 
-import fr.theobosse.lgbot.game.Game;
-import fr.theobosse.lgbot.game.GameActions;
-import fr.theobosse.lgbot.game.GamesInfo;
-import fr.theobosse.lgbot.game.Player;
+import fr.theobosse.lgbot.game.*;
+import fr.theobosse.lgbot.game.enums.Clan;
+import fr.theobosse.lgbot.game.enums.Rounds;
+import fr.theobosse.lgbot.utils.Emotes;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -17,8 +17,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class LittleGirl extends GameActions {
+public class LittleGirl extends Role {
     private final HashMap<Player, List<String>> nightMessages = new HashMap<>();
+
+    public LittleGirl() {
+        setName("Petite Fille");
+        setSubName("PF");
+        setClan(Clan.VILLAGE);
+        setEmoji(Emotes.getEmote("little_girl"));
+        setRound(Rounds.WEREWOLF);
+
+        setDescription("Son objectif est d'éliminer tous les Loups-Garous. Chaque nuit, " +
+                "elle peut espionner les Loups-Garous.");
+    }
 
     @Override
     public void onPlay(Player player) {

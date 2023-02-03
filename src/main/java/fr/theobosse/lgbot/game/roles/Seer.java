@@ -1,8 +1,11 @@
 package fr.theobosse.lgbot.game.roles;
 
-import fr.theobosse.lgbot.game.GameActions;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
+import fr.theobosse.lgbot.game.Role;
+import fr.theobosse.lgbot.game.enums.Clan;
+import fr.theobosse.lgbot.game.enums.Rounds;
+import fr.theobosse.lgbot.utils.Emotes;
 import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -11,9 +14,20 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.HashMap;
 
-public class Seer extends GameActions {
+public class Seer extends Role {
 
     private final HashMap<Player, Boolean> power = new HashMap<>();
+
+    public Seer() {
+        setName("Voyante");
+        setSubName("Voyante");
+        setClan(Clan.VILLAGE);
+        setEmoji(Emotes.getEmote("seer"));
+        setRound(Rounds.SEER);
+
+        setDescription("Son objectif est d'éliminer tous les Loups-Garous. Chaque nuit, elle peut espionner un " +
+                "joueur et découvrir sa véritable identité...");
+    }
 
     @Override
     public void onPlay(Player player) {

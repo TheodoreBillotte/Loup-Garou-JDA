@@ -22,6 +22,7 @@ public class GameUtils {
     private final List<Player> kills = new ArrayList<>();
     private final HashMap<Player, Player> voters = new HashMap<>();
     private final HashMap<Player, Integer> votes = new HashMap<>();
+    private final HashMap<Player, Integer> majorVotes = new HashMap<>();
     private final HashMap<Player, List<Player>> couples = new HashMap<>();
 
     private Player major;
@@ -70,6 +71,10 @@ public class GameUtils {
 
     public HashMap<Player, Integer> getVotes() {
         return votes;
+    }
+
+    public HashMap<Player, Integer> getMajorVotes() {
+        return majorVotes;
     }
 
     public HashMap<Player, Player> getVoters() {
@@ -124,7 +129,6 @@ public class GameUtils {
 
     public void addRole(Role role) {
         roles.add(role);
-        game.getMessages().updateRolesMessages();
     }
 
     public void addPlayer(Player player) {
@@ -151,7 +155,6 @@ public class GameUtils {
 
     public void removeRole(Role role) {
         roles.remove(role);
-        game.getMessages().updateRolesMessages();
     }
 
     public void removePlayer(Player player) {

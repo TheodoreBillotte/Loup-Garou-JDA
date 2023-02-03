@@ -1,10 +1,9 @@
 package fr.theobosse.lgbot.game.roles;
 
-import fr.theobosse.lgbot.game.Game;
-import fr.theobosse.lgbot.game.GameActions;
-import fr.theobosse.lgbot.game.GamesInfo;
-import fr.theobosse.lgbot.game.Player;
+import fr.theobosse.lgbot.game.*;
+import fr.theobosse.lgbot.game.enums.Clan;
 import fr.theobosse.lgbot.game.enums.Rounds;
+import fr.theobosse.lgbot.utils.Emotes;
 import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -13,11 +12,23 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
-public class Crow extends GameActions {
+public class Crow extends Role {
 
     @Override
     public void onPlay(Player player) {
         sendMessage(player);
+    }
+
+    public Crow() {
+        setName("Corbeau");
+        setSubName("Corbeau");
+        setClan(Clan.VILLAGE);
+        setEmoji(Emotes.getEmote("crow"));
+        setRound(Rounds.CROW);
+
+        setDescription("Son objectif est d'éliminer tous les Loups-Garous.\n" +
+                "Chaque nuit, il peut désigner un joueur, qui se retrouvera le lendemain avec deux voix contre lui au vote.\n" +
+                "C'est donc un pouvoir très puissant...");
     }
 
     @Override
@@ -28,7 +39,7 @@ public class Crow extends GameActions {
         if (player == null) return;
         if (!player.isAlive()) return;
         Game game = player.getGame();
-        if (!game.getUtils().getRound().equals(Rounds.CROW)) return;
+        if (game.getUtils().getRound() == null || !game.getUtils().getRound().equals(Rounds.CROW)) return;
         if (!player.getRole().getName().equals("Corbeau")) return;
         event.reply("Choisissez la personne que vous souhaitez voter.")
                 .addActionRow(

@@ -1,13 +1,9 @@
 package fr.theobosse.lgbot;
 
 import fr.theobosse.lgbot.commands.CreateCommand;
-import fr.theobosse.lgbot.game.Role;
-import fr.theobosse.lgbot.game.enums.Clan;
-import fr.theobosse.lgbot.game.enums.Rounds;
 import fr.theobosse.lgbot.game.roles.*;
 import fr.theobosse.lgbot.listeners.*;
 import fr.theobosse.lgbot.utils.CommandManager;
-import fr.theobosse.lgbot.utils.Emotes;
 import fr.theobosse.lgbot.utils.JSONLoader;
 import fr.theobosse.lgbot.utils.Roles;
 import net.dv8tion.jda.api.JDA;
@@ -98,15 +94,14 @@ public class LGBot {
     }
 
     private static void loadRoles() {
-        Roles.addRole(new Role("Loup-Garou", "LG", Clan.WEREWOLF, Emotes.getEmote("werewolf"), Rounds.WEREWOLF, new WereWolf()));
-        Roles.addRole(new Role("Villageois", "Villageois", Clan.VILLAGE, Emotes.getEmote("villager"), null, new Villager()));
-        Roles.addRole(new Role("Chasseur", "Chasseur", Clan.VILLAGE, Emotes.getEmote("hunter"), null, new Hunter()));
-        Roles.addRole(new Role("Petite Fille", "PF", Clan.VILLAGE, Emotes.getEmote("little_girl"), Rounds.WEREWOLF, new LittleGirl()));
-        Roles.addRole(new Role("Sorcière", "Sorcière", Clan.VILLAGE, Emotes.getEmote("witch"), Rounds.WITCH, new Witch()));
-        Roles.addRole(new Role("Corbeau", "Corbeau", Clan.VILLAGE, Emotes.getEmote("crow"), Rounds.CROW, new Crow()));
-        Roles.addRole(new Role("Voyante", "Voyante", Clan.VILLAGE, Emotes.getEmote("seer"), Rounds.SEER, new Seer()));
-        Roles.addRole(new Role("Cupidon", "Cupidon", Clan.VILLAGE, Emotes.getEmote("cupid"), Rounds.CUPID, new Cupidon()));
-        Roles.addRole(new Role("Loup-Garou Blanc", "LGB", Clan.SOLO, Emotes.getEmote("white_werewolf"), Rounds.WEREWOLF, new WereWolf()));
+        Roles.addRole(new WereWolf());
+        Roles.addRole(new Villager());
+        Roles.addRole(new Hunter());
+        Roles.addRole(new LittleGirl());
+        Roles.addRole(new Witch());
+        Roles.addRole(new Seer());
+        Roles.addRole(new Cupidon());
+        Roles.addRole(new Crow());
     }
 
     public static void loadMembers() {
@@ -133,7 +128,8 @@ public class LGBot {
                 new RoleEvent(),
                 new MaxPlayersEvent(),
                 new MajorEvent(),
-                new SavesEvent()
+                new SavesEvent(),
+                new MajorVoteEvent()
         );
     }
 

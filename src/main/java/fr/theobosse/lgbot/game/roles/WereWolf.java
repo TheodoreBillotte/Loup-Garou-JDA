@@ -1,26 +1,35 @@
 package fr.theobosse.lgbot.game.roles;
 
 import fr.theobosse.lgbot.game.Game;
-import fr.theobosse.lgbot.game.GameActions;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
+import fr.theobosse.lgbot.game.Role;
 import fr.theobosse.lgbot.game.enums.Clan;
 import fr.theobosse.lgbot.game.enums.Rounds;
+import fr.theobosse.lgbot.utils.Emotes;
 import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.HashMap;
 import java.util.Random;
 
-public class WereWolf extends GameActions {
+public class WereWolf extends Role {
 
     private final HashMap<Game, HashMap<Player, Player>> votes = new HashMap<>();
     private final HashMap<Game, Message> messages = new HashMap<>();
+
+    public WereWolf() {
+        setName("Loup-Garou");
+        setSubName("LG");
+        setClan(Clan.WEREWOLF);
+        setEmoji(Emotes.getEmote("werewolf"));
+        setRound(Rounds.WEREWOLF);
+        setDescription("Son objectif est d'éliminer tous les innocents (ceux qui ne sont pas Loups-Garous). " +
+                "Chaque nuit, il se réunit avec ses compères Loups pour décider d'une victime à éliminer...");
+    }
 
     @Override
     public void onPlay(Player player) {
@@ -55,31 +64,6 @@ public class WereWolf extends GameActions {
         messages.remove(game);
     }
 
-
-    @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (!event.getComponentId().equals("werewolf")) return;
-        Member member = event.getMember();
-        String msgId = event.getMessageId();
-        MessageChannel channel = event.getChannel();
-        if (member == null) return;
-        if (member.getUser().isBot()) return;
-        Player player = GamesInfo.getPlayer(member);
-        if (player == null) return;
-        Game game = player.getGame();
-
-        if (messages.get(game) == null) return;
-        if (game.getChannelsManager().getWerewolfChannel() == null) return;
-        if (!channel.getId().equals(game.getChannelsManager().getWerewolfChannel().getId())) return;
-        if (!player.getRole().getRound().equals(Rounds.WEREWOLF)) return;
-        if (!msgId.equals(messages.get(game).getId())) return;
-
-        event.reply("Choisissez votre cible")
-                .addActionRow(
-                        Messages.getPlayerListSelectInteraction(game.getUtils().getAlive(), "lgVote", "Votre cible").build()
-                ).setEphemeral(true).queue();
-    }
-
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
         if (!event.getComponentId().equals("lgVote")) return;
@@ -87,6 +71,7 @@ public class WereWolf extends GameActions {
         if (member == null) return;
         Player player = GamesInfo.getPlayer(member);
         if (player == null) return;
+        if (!player.isAlive()) return;
         Game game = player.getGame();
         if (game.getUtils().getRound() == null || !game.getUtils().getRound().equals(Rounds.WEREWOLF)) return;
         Player target = GamesInfo.getPlayer(game, event.getValues().get(0));
@@ -94,7 +79,7 @@ public class WereWolf extends GameActions {
 
         vote(player, target);
         updateMessage(player);
-        event.reply("Vous avez voté pour " + target.getMember().getAsMention()).setEphemeral(true).queue();
+        event.reply("Vous avez voté pour " + target.getMember().getAsMention()).setEphemeral(true).complete();
     }
 
 
@@ -118,8 +103,7 @@ public class WereWolf extends GameActions {
             } catch (Exception ignored) {}
         });
 
-        eb.addField("Pour voter:", "cliquez sur le bouton ci-dessous et sélectionnez la personne pour qui vous " +
-                "souhaitez voter",false);
+        eb.addField("Pour voter:", "sélectionnez la personne pour qui vous souhaitez voter",false);
         return eb;
     }
 
@@ -137,7 +121,7 @@ public class WereWolf extends GameActions {
 
         Message msg = game.getChannelsManager().getWerewolfChannel().sendMessageEmbeds(getMessage(player).build())
                 .addActionRow(
-                        Button.primary("werewolf", "Voter")
+                        Messages.getPlayerListSelectInteraction(game.getUtils().getAlive(), "lgVote", "Votre cible").build()
                 ).complete();
         messages.put(game, msg);
     }
@@ -155,9 +139,8 @@ public class WereWolf extends GameActions {
         } catch (Exception ignored) {}
     }
 
-
-
     public void vote(Player player, Player voted) {
+        if (!player.isAlive()) return;
         Game game = player.getGame();
         votes.putIfAbsent(game, new HashMap<>());
         votes.get(game).put(player, voted);

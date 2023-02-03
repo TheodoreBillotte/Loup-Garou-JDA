@@ -97,7 +97,7 @@ public class GameRunning {
                 if (wakeup && !isFinish() && game.getUtils().getMajor() != null) {
                     if (!messageSent) {
                         game.getMessages().sendWakeUpMessage();
-                        game.getUtils().getPlayers().forEach(p -> p.getRole().getActions().onWakeUp(p));
+                        game.getUtils().getPlayers().forEach(p -> p.getRole().onWakeUp(p));
                     }
 
                     game.getMessages().sendVotesMessage();
@@ -107,7 +107,7 @@ public class GameRunning {
 
                 if (wakeup && !isFinish() && game.getUtils().getMajor() == null) {
                     game.getMessages().sendWakeUpMessage();
-                    game.getUtils().getPlayers().forEach(p -> p.getRole().getActions().onWakeUp(p));
+                    game.getUtils().getPlayers().forEach(p -> p.getRole().onWakeUp(p));
                     game.getMessages().sendMajorMessage();
                     game.getUtils().setTime(System.currentTimeMillis() + (1000L * game.getOptions().getDayTime()));
                     messageSent = true;
@@ -130,7 +130,7 @@ public class GameRunning {
                     game.getMessages().sendSleepMessage();
                     game.getUtils().getPlayers().forEach(p -> {
                         try {
-                            p.getRole().getActions().onSleep(p);
+                            p.getRole().onSleep(p);
                         } catch (Exception ignored) {}
                     });
                     goSleep = false;
@@ -142,7 +142,7 @@ public class GameRunning {
                         try {
                             if (p.getRole().getRound().equals(game.getUtils().getRound()))
                                 try {
-                                    p.getRole().getActions().onEndRound(p);
+                                    p.getRole().onEndRound(p);
                                 } catch (Exception ignored) {}
                         } catch (Exception ignored) {}
                     }
@@ -154,7 +154,7 @@ public class GameRunning {
                         for (Player p : game.getUtils().getPlayers()) {
                             try {
                                 if (p.getRole().getRound().equals(game.getUtils().getRound()) && p.isAlive()) {
-                                    p.getRole().getActions().onPlay(p);
+                                    p.getRole().onPlay(p);
                                     playing++;
                                 }
                             } catch (Exception ignored) {}
@@ -166,7 +166,7 @@ public class GameRunning {
 
                 if (game.getUtils().getDay() && !hasVoted && !wakeup && !isFinish()) {
                     for (Player p : game.getUtils().getKills())
-                        p.getRole().getActions().onNightDeath(p);
+                        p.getRole().onNightDeath(p);
 
                     game.getUtils().getDead().addAll(game.getUtils().getKills());
                     game.getMessages().sendKillsMessage();
@@ -180,9 +180,9 @@ public class GameRunning {
                 }
 
                 if (game.getUtils().getDay() && game.getUtils().getMajor() != null) {
-                    Player target = getVoteResult();
+                    Player target = getVoteResult(game.getUtils().getVotes());
                     if (target != null) {
-                        target.getRole().getActions().onVoteDeath(target);
+                        target.getRole().onVoteDeath(target);
                         game.getMessages().sendDeathMessage(target);
                         game.kill(target);
                         if (target.equals(game.getUtils().getMajor()))
@@ -201,12 +201,12 @@ public class GameRunning {
                 }
 
                 if (game.getUtils().getDay() && game.getUtils().getMajor() == null) {
-                    Player target = getVoteResult();
+                    Player target = getVoteResult(game.getUtils().getMajorVotes());
                     if (target == null)
                         target = game.getUtils().getAlive().get(random.nextInt(game.getUtils().getPlayers().size()));
                     game.getUtils().setMajor(target);
                     game.getMessages().sendElectMessage();
-                    game.getUtils().getVotes().clear();
+                    game.getUtils().getMajorVotes().clear();
                     game.getUtils().getVoters().clear();
                     wakeup = true;
                 }
@@ -306,11 +306,11 @@ public class GameRunning {
         }
     }
 
-    public Player getVoteResult() {
+    public Player getVoteResult(HashMap<Player, Integer> votes) {
         long count = 0;
         Player target = null;
-        for (Player player : game.getUtils().getVotes().keySet()) {
-            long nb = game.getUtils().getVotes().get(player);
+        for (Player player : votes.keySet()) {
+            long nb = votes.get(player);
             if (nb > count) {
                 count = nb;
                 target = player;

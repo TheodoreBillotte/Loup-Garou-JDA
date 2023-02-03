@@ -26,7 +26,7 @@ public class QuitEvent extends ListenerAdapter {
         }
 
         game.quit(member);
-        event.deferEdit().queue();
+        event.deferEdit().complete();
     }
 
 }

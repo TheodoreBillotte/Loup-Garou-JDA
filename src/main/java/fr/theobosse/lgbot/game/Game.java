@@ -4,13 +4,11 @@ import fr.theobosse.lgbot.game.enums.GameState;
 import fr.theobosse.lgbot.game.enums.Rounds;
 import fr.theobosse.lgbot.utils.GuildManager;
 import fr.theobosse.lgbot.utils.Messages;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.util.List;
-import java.util.Objects;
 
 public class Game {
 
@@ -159,18 +157,15 @@ public class Game {
 
         if (options.isDeadAreMuted()) {
             try {
-                Objects.requireNonNull(channelsManager.getVoiceChannel().getPermissionOverride(player.getMember())).getAllowed().remove(Permission.VOICE_SPEAK);
-                Objects.requireNonNull(channelsManager.getVoiceChannel().getPermissionOverride(player.getMember())).getDenied().add(Permission.VOICE_SPEAK);
+                channelsManager.getVoiceChannel().getManager().removePermissionOverride(player.getMember()).queue();
             } catch (Exception ignored) {}
         }
 
         try {
-            Objects.requireNonNull(channelsManager.getVillageChannel().getPermissionOverride(player.getMember())).getAllowed().remove(Permission.MESSAGE_SEND);
-            Objects.requireNonNull(channelsManager.getVillageChannel().getPermissionOverride(player.getMember())).getDenied().add(Permission.MESSAGE_SEND);
+            channelsManager.getVillageChannel().getManager().removePermissionOverride(player.getMember()).queue();
         } catch (Exception ignored) {}
         try {
-            Objects.requireNonNull(channelsManager.getWerewolfChannel().getPermissionOverride(player.getMember())).getAllowed().remove(Permission.MESSAGE_SEND);
-            Objects.requireNonNull(channelsManager.getWerewolfChannel().getPermissionOverride(player.getMember())).getDenied().add(Permission.MESSAGE_SEND);
+            channelsManager.getWerewolfChannel().getManager().removePermissionOverride(player.getMember()).queue();
         } catch (Exception ignored) {}
     }
 

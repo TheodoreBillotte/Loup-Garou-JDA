@@ -23,7 +23,7 @@ public class JoinEvent extends ListenerAdapter {
         }
 
         if (GamesInfo.getPlayer(member) != null) {
-            event.reply("Vous êtes déjà dans une partie.").setEphemeral(true).queue();
+            event.reply("Vous êtes déjà dans une partie.").setEphemeral(true).complete();
             return;
         }
 

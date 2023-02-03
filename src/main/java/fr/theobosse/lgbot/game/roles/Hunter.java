@@ -1,6 +1,8 @@
 package fr.theobosse.lgbot.game.roles;
 
 import fr.theobosse.lgbot.game.*;
+import fr.theobosse.lgbot.game.enums.Clan;
+import fr.theobosse.lgbot.utils.Emotes;
 import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -11,9 +13,20 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.util.ArrayList;
 
-public class Hunter extends GameActions {
+public class Hunter extends Role {
 
     ArrayList<Player> shooting = new ArrayList<>();
+
+    public Hunter() {
+        setName("Chasseur");
+        setSubName("Chasseur");
+        setClan(Clan.VILLAGE);
+        setEmoji(Emotes.getEmote("hunter"));
+        setRound(null);
+
+        setDescription("Son objectif est d'éliminer tous les Loups-Garous. A sa mort, il doit éliminer un joueur" +
+                " en utilisant sa dernière balle...");
+    }
 
     @Override
     public void onNightDeath(Player player) {

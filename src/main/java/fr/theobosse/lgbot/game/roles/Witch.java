@@ -1,13 +1,15 @@
 package fr.theobosse.lgbot.game.roles;
 
 import fr.theobosse.lgbot.game.Game;
-import fr.theobosse.lgbot.game.GameActions;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
+import fr.theobosse.lgbot.game.Role;
+import fr.theobosse.lgbot.game.enums.Clan;
+import fr.theobosse.lgbot.game.enums.Rounds;
 import fr.theobosse.lgbot.utils.Emotes;
 import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
@@ -17,12 +19,22 @@ import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Witch extends GameActions {
+public class Witch extends Role {
 
     private final HashMap<Player, Boolean> revive = new HashMap<>();
     private final HashMap<Player, Boolean> death = new HashMap<>();
-
     private final ArrayList<Player> playing = new ArrayList<>();
+
+    public Witch() {
+        setName("Sorcière");
+        setSubName("Sorcière");
+        setClan(Clan.VILLAGE);
+        setEmoji(Emotes.getEmote("witch"));
+        setRound(Rounds.WITCH);
+
+        setDescription("Son objectif est d'éliminer tous les Loups-Garous. Elle dispose de deux potions : " +
+                "une potion de vie pour sauver la victime des Loups, et une potion de mort pour assassiner quelqu'un.");
+    }
 
     @Override
     public void onPlay(Player player) {
@@ -30,8 +42,16 @@ public class Witch extends GameActions {
         this.revive.putIfAbsent(player, true);
         this.death.putIfAbsent(player, true);
         sendPlayMessage(player);
+        Game game = player.getGame();
+
+        if (!revive.get(player) && !death.get(player))
+            game.getGameRunning().played();
     }
 
+    @Override
+    public void onEndRound(Player player) {
+        playing.remove(player);
+    }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
@@ -41,9 +61,9 @@ public class Witch extends GameActions {
         if (player == null) return;
         Game game = player.getGame();
         if (player.getRole() == null) return;
-        if (player.getRole().getActions() == null) return;
-        if (!player.getRole().getActions().equals(this)) return;
+        if (!player.getRole().equals(this)) return;
         if (!playing.contains(player)) return;
+        if (!player.isAlive()) return;
 
         if (event.getComponentId().equals("witch play")) {
             sendMessage(player, event);
@@ -66,8 +86,9 @@ public class Witch extends GameActions {
         if (player == null) return;
         if (!playing.contains(player)) return;
         Game game = player.getGame();
-        if (!player.getRole().getActions().equals(this)) return;
+        if (!player.getRole().equals(this)) return;
         if (!playing.contains(player)) return;
+        if (!player.isAlive()) return;
 
         Player target = GamesInfo.getPlayer(game, event.getValues().get(0));
         if (target == null) return;

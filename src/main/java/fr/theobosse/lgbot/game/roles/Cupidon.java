@@ -1,9 +1,9 @@
 package fr.theobosse.lgbot.game.roles;
 
-import fr.theobosse.lgbot.game.Game;
-import fr.theobosse.lgbot.game.GameActions;
-import fr.theobosse.lgbot.game.GamesInfo;
-import fr.theobosse.lgbot.game.Player;
+import fr.theobosse.lgbot.game.*;
+import fr.theobosse.lgbot.game.enums.Clan;
+import fr.theobosse.lgbot.game.enums.Rounds;
+import fr.theobosse.lgbot.utils.Emotes;
 import fr.theobosse.lgbot.utils.Messages;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -14,9 +14,21 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class Cupidon extends GameActions {
+public class Cupidon extends Role {
 
     ArrayList<Player> playing = new ArrayList<>();
+
+    public Cupidon() {
+        setName("Cupidon");
+        setSubName("Cupidon");
+        setClan(Clan.VILLAGE);
+        setEmoji(Emotes.getEmote("cupid"));
+        setRound(Rounds.CUPID);
+
+        setDescription("Son objectif est d'éliminer tous les Loups-Garous. Dès le début de la partie, il doit former" +
+                " un couple de deux joueurs. Leur objectif sera de survivre ensemble, car si l'un d'eux meurt," +
+                " l'autre se suicidera.");
+    }
 
     @Override
     public void onPlay(Player player) {

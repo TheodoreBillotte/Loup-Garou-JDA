@@ -3,61 +3,66 @@ package fr.theobosse.lgbot.game;
 import fr.theobosse.lgbot.LGBot;
 import fr.theobosse.lgbot.game.enums.Clan;
 import fr.theobosse.lgbot.game.enums.Rounds;
-import fr.theobosse.lgbot.game.roles.NULL;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 
-public class Role {
+public abstract class Role extends GameActions {
 
-    private final String name;
-    private final String subName;
-    private final Clan clan;
-    private final CustomEmoji emoji;
-    private final Rounds round;
-    private final GameActions actions;
+    private String name;
+    private String subName;
+    private Clan clan;
+    private CustomEmoji emoji;
+    private Rounds round;
+    private String description;
 
-    private final String description;
-
-    public Role(String name, String subName, Clan clan, CustomEmoji emote,
-                Rounds round, GameActions actions) {
-        this.name = name;
-        this.subName = subName;
-        this.clan = clan;
-        this.emoji = emote;
-        this.round = round;
-        this.actions = actions;
-        this.description = "Aucune description";
-
-        if (actions == null)
-            actions = new NULL();
-        LGBot.getJDA().addEventListener(actions);
+    public Role() {
+        LGBot.getJDA().addEventListener(this);
     }
-
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getSubName() {
         return subName;
     }
 
+    public void setSubName(String subName) {
+        this.subName = subName;
+    }
+
     public Clan getClan() {
         return clan;
+    }
+
+    public void setClan(Clan clan) {
+        this.clan = clan;
     }
 
     public CustomEmoji getEmoji() {
         return emoji;
     }
 
+    public void setEmoji(CustomEmoji emoji) {
+        this.emoji = emoji;
+    }
+
     public Rounds getRound() {
         return round;
     }
 
-    public GameActions getActions() {
-        return actions;
+    public void setRound(Rounds round) {
+        this.round = round;
     }
 
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

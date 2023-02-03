@@ -210,9 +210,7 @@ public class GuildManager {
     }
 
     public static void removeWaitingPermissions(Game game, Member member) {
-        game.getChannelsManager().getWaitingChannel().upsertPermissionOverride(member).
-                reset().
-                complete();
+        game.getChannelsManager().getWaitingChannel().upsertPermissionOverride(member).clear().complete();
     }
 
     public static void modifyGameCreationChannel(Game game, Member oldHost) {

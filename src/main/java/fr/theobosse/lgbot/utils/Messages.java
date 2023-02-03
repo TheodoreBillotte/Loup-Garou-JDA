@@ -43,7 +43,6 @@ public class Messages {
             eb.addBlankField(false);
         }
 
-        // fields
         eb.addField("Joueurs de la partie:", "Il y a " + game.getUtils().getPlayers().size() + " joueur(s).", false);
         for (Player player : game.getUtils().getPlayers()) {
             eb.addField(player.getMember().getEffectiveName(), player.getGame().getHost().equals(player.getMember()) ? "HOST" : "JOUEUR", true);
@@ -131,7 +130,6 @@ public class Messages {
         eb.setThumbnail(Objects.requireNonNull(Emotes.getEmote("fox")).getImageUrl());
         eb.setFooter("Vous pouvez cliquer sur les boutons ci-dessous pour gérer les invitations.");
 
-        // fields
         List<Member> invited = game.getOptions().getInvitedList();
         eb.addField("Invités:", "Il y a " + invited.size() + " invité(s) !", false);
         invited.forEach(member -> eb.addField(member.getEffectiveName(), "EN ATTENTE...", true));
@@ -206,8 +204,7 @@ public class Messages {
         for (Player player : game.getUtils().getAlive())
             eb.addField(player.getMember().getEffectiveName(), game.getUtils().getVotes().get(player) == null ? "0" : String.valueOf(game.getUtils().getVotes().get(player)), true);
 
-        eb.addField("Pour voter réagissez avec", "💌", false);
-        eb.addField("Puis mentionnez la personne visé !", "mais ça vous l'aviez compris 😉", false);
+        eb.addField("Pour voter", "sélectionnez la votre cible dans le menu ci-dessous", false);
         return eb;
     }
 
@@ -250,6 +247,7 @@ public class Messages {
 
     public EmbedBuilder getEndMessage() {
         EmbedBuilder eb = new EmbedBuilder();
+        eb.setColor(Color.RED);
         eb.setTitle("La partie est terminée !");
         eb.addField("J'espère que vous avez aimé l'experience de jeu !",
                 game.getUtils().hasWinner() ? "Le gagnant est " + game.getUtils().getWinner().name() :
@@ -282,10 +280,9 @@ public class Messages {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setColor(Color.ORANGE);
         eb.setTitle("Il est temps de choisir le nouveau maire !");
-        eb.setFooter("Vous avez " + game.getOptions().getDayTime() + "s pour choisir !");
         for (Player player : game.getUtils().getAlive())
             eb.addField(player.getMember().getEffectiveName(), game.getUtils().getVotes().get(player) == null ? "0" :
-                    String.valueOf(game.getUtils().getVotes().get(player)), true);
+                    String.valueOf(game.getUtils().getMajorVotes().get(player)), true);
 
         eb.addField("Pour choisir le nouveau maire:",
                 "Sélectionnez la personne pour laquelle vous souhaitez voter dans le menu déroulant ci-dessous !",
