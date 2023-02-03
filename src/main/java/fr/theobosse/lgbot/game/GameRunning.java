@@ -173,6 +173,7 @@ public class GameRunning {
                     if (game.getUtils().getKills().contains(game.getUtils().getMajor()))
                         onMajorDeath();
                     game.getUtils().getKills().forEach(game::kill);
+                    checkLoveDeath();
                     hasVoted = true;
                     wakeup = true;
                     return;
@@ -186,6 +187,7 @@ public class GameRunning {
                         game.kill(target);
                         if (target.equals(game.getUtils().getMajor()))
                             onMajorDeath();
+                        checkLoveDeath();
                     }
                     game.getUtils().getVotes().clear();
                     game.getUtils().getVoters().clear();
@@ -246,15 +248,14 @@ public class GameRunning {
                 Player love1 = entry.getValue().get(0);
                 Player love2 = entry.getValue().get(1);
 
-                if (players.size() == 2)
-                    if (new HashSet<>(game.getUtils().getAlive()).containsAll(Arrays.asList(cupid, love1, love2))) {
-                        game.getUtils().setWinner(Clan.LOVE);
-                        return true;
-                    }
-                    else if (new HashSet<>(game.getUtils().getAlive()).containsAll(Arrays.asList(love1, love2))) {
-                        game.getUtils().setWinner(Clan.LOVE);
-                        return true;
-                    }
+                if (new HashSet<>(game.getUtils().getAlive()).containsAll(Arrays.asList(cupid, love1, love2))) {
+                    game.getUtils().setWinner(Clan.LOVE);
+                    return true;
+                }
+                if (new HashSet<>(game.getUtils().getAlive()).containsAll(Arrays.asList(love1, love2))) {
+                    game.getUtils().setWinner(Clan.LOVE);
+                    return true;
+                }
             }
         }
 
@@ -274,6 +275,35 @@ public class GameRunning {
     public void onMajorDeath() {
         game.getUtils().setTime(Long.MAX_VALUE);
         game.getMessages().sendMajorDeathMessage();
+    }
+
+    public void checkLoveDeath() {
+        for (Map.Entry<Player, List<Player>> entry : game.getUtils().getCouples().entrySet()) {
+            Player cupid = entry.getKey();
+            Player love1 = entry.getValue().get(0);
+            Player love2 = entry.getValue().get(1);
+
+            if (!game.equals(cupid.game) || (cupid.isAlive() && love1.isAlive() && love2.isAlive()))
+                continue;
+
+            if (cupid.isAlive() && !love1.isAlive() && love2.isAlive()) {
+                game.getMessages().sendLoveDeathMessage(love2, love1);
+                game.getUtils().getCouples().remove(cupid);
+                game.kill(love1);
+                if (love1.equals(game.getUtils().getMajor()))
+                    onMajorDeath();
+                break;
+            }
+
+            if (cupid.isAlive() && love1.isAlive() && !love2.isAlive()) {
+                game.getMessages().sendLoveDeathMessage(love1, love2);
+                game.getUtils().getCouples().remove(cupid);
+                game.kill(love2);
+                if (love2.equals(game.getUtils().getMajor()))
+                    onMajorDeath();
+                break;
+            }
+        }
     }
 
     public Player getVoteResult() {

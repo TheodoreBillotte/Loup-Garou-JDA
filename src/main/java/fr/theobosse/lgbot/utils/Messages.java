@@ -35,11 +35,11 @@ public class Messages {
         eb.setThumbnail(game.getHost().getUser().getEffectiveAvatarUrl());
         eb.setColor(game.getState().equals(GameState.STARTING) ? Color.GREEN : Color.ORANGE);
         eb.setFooter("Vous pouvez cliquer sur les boutons ci-dessous pour " +
-                "séléctionner des actions.", "https://images.emojiterra.com/openmoji/v12.2/128px/1f43a.png");
+                "sélectionner des actions.", "https://images.emojiterra.com/openmoji/v12.2/128px/1f43a.png");
 
         eb.addBlankField(false);
         if (game.getState().equals(GameState.STARTING)) {
-            eb.addField("VOTRE PARTIE DEMARRERA DANS", String.valueOf(game.getStartTime()), false);
+            eb.addField("VOTRE PARTIE DÉMARRERA DANS", String.valueOf(game.getStartTime()), false);
             eb.addBlankField(false);
         }
 
@@ -137,7 +137,7 @@ public class Messages {
         invited.forEach(member -> eb.addField(member.getEffectiveName(), "EN ATTENTE...", true));
         if (invited.isEmpty()) eb.addField("Personne n'a été invité !", "Mais vous pouvez en ajouter en cliquant sur les boutons ci-dessous", true);
 
-        eb.addField("La partie est", game.getOptions().gameIsOnInvite() ? "FERMEE" : "OUVERTE", false);
+        eb.addField("La partie est", game.getOptions().gameIsOnInvite() ? "FERME" : "OUVERTE", false);
 
         eb.addBlankField(false);
 
@@ -253,7 +253,7 @@ public class Messages {
         eb.setTitle("La partie est terminée !");
         eb.addField("J'espère que vous avez aimé l'experience de jeu !",
                 game.getUtils().hasWinner() ? "Le gagnant est " + game.getUtils().getWinner().name() :
-                "La partie se termine sur une égalitée !",
+                "La partie se termine sur une égalité !",
                 false);
         eb.setFooter("Les channels seront supprimés dans 30s !");
         return eb;
@@ -262,7 +262,7 @@ public class Messages {
     public EmbedBuilder getDeathMessage(Player player) {
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle(player.getMember().getEffectiveName() + " a été tué lors des votes !");
-        eb.setFooter("Etais-ce un bon choix ?");
+        eb.setFooter("étais-ce un bon choix ?");
 
         eb.addField("Le role de " + player.getMember().getEffectiveName() + " était :", player.getRole().getName() + " !", false);
         return eb;
@@ -288,7 +288,7 @@ public class Messages {
                     String.valueOf(game.getUtils().getVotes().get(player)), true);
 
         eb.addField("Pour choisir le nouveau maire:",
-                "Selectionnez la personne pour laquelle vous souhaitez voter dans le menu déroulant ci-dessous !",
+                "Sélectionnez la personne pour laquelle vous souhaitez voter dans le menu déroulant ci-dessous !",
                 false);
         return eb;
     }
@@ -321,6 +321,14 @@ public class Messages {
                 builder.addField(s, "cliquez sur les boutons pour charger / supprimer cette sauvegarde", false)
         );
 
+        return builder;
+    }
+
+    private EmbedBuilder getLoveDeathMessage(Player player, Player lover) {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Mort d'amour");
+        builder.setDescription(player.getMember().getAsMention() + " est mort d'amour pour " + lover.getMember().getAsMention());
+        builder.setColor(Color.RED);
         return builder;
     }
 
@@ -500,6 +508,10 @@ public class Messages {
                 ).complete().retrieveOriginal().complete());
     }
 
+    public void sendLoveDeathMessage(Player player, Player lover) {
+        game.getChannelsManager().getVillageChannel().sendMessageEmbeds(getLoveDeathMessage(player, lover).build()).complete();
+    }
+
     public void deleteAddRoleMessage() {
         game.getMessagesManager().getAddRoleMessage().delete().complete();
     }
@@ -520,7 +532,7 @@ public class Messages {
         game.getMessagesManager().getInfoMessage().delete().complete();
     }
 
-    public void deleteSavesMessage() throws Exception {
+    public void deleteSavesMessage() {
         game.getMessagesManager().getSavesMessage().delete().complete();
     }
 

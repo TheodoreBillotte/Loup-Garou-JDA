@@ -105,7 +105,7 @@ public class LGBot {
         Roles.addRole(new Role("Sorcière", "Sorcière", Clan.VILLAGE, Emotes.getEmote("witch"), Rounds.WITCH, new Witch()));
         Roles.addRole(new Role("Corbeau", "Corbeau", Clan.VILLAGE, Emotes.getEmote("crow"), Rounds.CROW, new Crow()));
         Roles.addRole(new Role("Voyante", "Voyante", Clan.VILLAGE, Emotes.getEmote("seer"), Rounds.SEER, new Seer()));
-//         Roles.addRole(new Role("Cupidon", "Cupidon", Clan.VILLAGE, Emotes.getEmote("cupid"), Rounds.CUPID, null));
+         Roles.addRole(new Role("Cupidon", "Cupidon", Clan.VILLAGE, Emotes.getEmote("cupid"), Rounds.CUPID, new Cupidon()));
         // Roles.addRole(new Role("Renard", "Renard", Clan.VILLAGE, Emotes.getEmote("fox"), Rounds.FOX, null));
         // Roles.addRole(new Role("Loup-Garou Blanc", "LGB", Clan.SOLO, Emotes.getEmote("white_werewolf"), Rounds.WEREWOLF, null));
         // Roles.addRole(new Role("Assassin", "Assassin", Clan.SOLO, Emotes.getEmote("killer"), Rounds.KILLER, null));
