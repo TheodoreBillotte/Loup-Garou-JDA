@@ -1,6 +1,5 @@
 package fr.theobosse.lgbot.listeners;
 
-import fr.theobosse.lgbot.LGBot;
 import fr.theobosse.lgbot.game.Game;
 import fr.theobosse.lgbot.game.GamesInfo;
 import fr.theobosse.lgbot.game.Player;
@@ -12,7 +11,6 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.util.Objects;
 
@@ -21,8 +19,8 @@ public class MainCreationEvent extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         Member member = event.getMember();
-        String e = event.getButton().getId();
-        if (e == null || member == null) return;
+        String e = event.getComponentId();
+        if (member == null) return;
         Player player = GamesInfo.getPlayer(member);
 
         if (player == null) return;
@@ -90,20 +88,13 @@ public class MainCreationEvent extends ListenerAdapter {
                             event.reply("Le démarrage a été annulé !").setEphemeral(true).queue();
                         }
                         break;
-                    case "save":
-                        LGBot.getLoader().saveData(game);
-                        event.reply("La partie a été sauvegardée !").setEphemeral(true).queue();
-                        break;
-                    case "load save":
-                        StringSelectMenu menu = LGBot.getLoader().getSaves(player);
-                        if (menu == null) {
-                            event.reply("Vous n'avez aucune sauvegarde !").setEphemeral(true).queue();
-                            return;
+                    case "saves":
+                        try {
+                            game.getMessages().deleteSavesMessage();
+                            event.deferEdit().queue();
+                        } catch (Exception ignored) {
+                            game.getMessages().sendSavesMessage(event);
                         }
-                        event.reply("Choisissez la sauvegarde à charger !")
-                                .addActionRow(
-                                        menu
-                                ).setEphemeral(true).queue();
                         break;
                 }
             }

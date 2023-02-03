@@ -13,6 +13,7 @@ public class MessagesManager {
     private Message infoMessage;
     private Message votesMessage;
     private Message majorMessage;
+    private Message savesMessage;
 
     public void setMainCreationMessage(Message mainCreationMessage) {
         this.mainCreationMessage = mainCreationMessage;
@@ -44,6 +45,10 @@ public class MessagesManager {
 
     public void setVotesMessage(Message votesMessage) {
         this.votesMessage = votesMessage;
+    }
+
+    public void setSavesMessage(Message message) {
+        this.savesMessage = message;
     }
 
     public void setMajorMessage(Message majorMessage) {
@@ -84,5 +89,9 @@ public class MessagesManager {
 
     public Message getMajorMessage() {
         return majorMessage;
+    }
+
+    public Message getSavesMessage() {
+        return savesMessage;
     }
 }

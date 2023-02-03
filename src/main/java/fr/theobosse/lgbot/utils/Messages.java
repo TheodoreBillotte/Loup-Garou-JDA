@@ -1,5 +1,6 @@
 package fr.theobosse.lgbot.utils;
 
+import fr.theobosse.lgbot.LGBot;
 import fr.theobosse.lgbot.game.Game;
 import fr.theobosse.lgbot.game.Player;
 import fr.theobosse.lgbot.game.Role;
@@ -7,6 +8,7 @@ import fr.theobosse.lgbot.game.enums.GameState;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -308,6 +310,20 @@ public class Messages {
         return builder;
     }
 
+    public EmbedBuilder getSavesMessage() {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Sauvegardes");
+        builder.setColor(Color.GREEN);
+        builder.setDescription("Sauvegardes disponibles :");
+        builder.setFooter("Sauvegardes");
+
+        LGBot.getLoader().getJson().get(game.getHost().getId()).fieldNames().forEachRemaining(s ->
+                builder.addField(s, "cliquez sur les boutons pour charger / supprimer cette sauvegarde", false)
+        );
+
+        return builder;
+    }
+
 
 
     public void sendMainMessage() {
@@ -321,8 +337,7 @@ public class Messages {
                         addActionRow(
                                 Button.success("start", "Lancer la partie"),
                                 Button.danger("remove", "Supprimer la partie"),
-                                Button.secondary("save", "Sauvegarder la partie"),
-                                Button.secondary("load save", "Charger une partie")
+                                Button.secondary("saves", "Sauvegardes")
                         ).
                         complete();
         game.getMessagesManager().setMainCreationMessage(msg);
@@ -476,24 +491,37 @@ public class Messages {
                 ).complete();
     }
 
+    public void sendSavesMessage(ButtonInteractionEvent event) {
+        game.getMessagesManager().setSavesMessage(event.replyEmbeds(getSavesMessage().build())
+                .addActionRow(
+                        Button.primary("save", "Sauvegarder la partie"),
+                        Button.success("load save", "Charger une sauvegarde"),
+                        Button.danger("delete save", "Supprimer une sauvegarde")
+                ).complete().retrieveOriginal().complete());
+    }
+
     public void deleteAddRoleMessage() {
-        game.getMessagesManager().getAddRoleMessage().delete().queue();
+        game.getMessagesManager().getAddRoleMessage().delete().complete();
     }
 
     public void deleteRemoveRoleMessage() {
-        game.getMessagesManager().getRemoveRoleMessage().delete().queue();
+        game.getMessagesManager().getRemoveRoleMessage().delete().complete();
     }
 
     public void deleteOptionsMessage() {
-        game.getMessagesManager().getOptionsMessage().delete().queue();
+        game.getMessagesManager().getOptionsMessage().delete().complete();
     }
 
     public void deleteInvitesMessage() {
-        game.getMessagesManager().getInvitesMessage().delete().queue();
+        game.getMessagesManager().getInvitesMessage().delete().complete();
     }
 
     public void deleteInfoMessage() {
-        game.getMessagesManager().getInfoMessage().delete().queue();
+        game.getMessagesManager().getInfoMessage().delete().complete();
+    }
+
+    public void deleteSavesMessage() throws Exception {
+        game.getMessagesManager().getSavesMessage().delete().complete();
     }
 
 
@@ -547,6 +575,12 @@ public class Messages {
     public void updateMajorMessages() {
         try {
             game.getMessagesManager().getMajorMessage().editMessageEmbeds(getMajorMessage().build()).complete();
+        } catch (Exception ignored) {}
+    }
+
+    public void updateSavesMessage() {
+        try {
+            game.getMessagesManager().getSavesMessage().editMessageEmbeds(getSavesMessage().build()).complete();
         } catch (Exception ignored) {}
     }
 

@@ -135,7 +135,7 @@ public class LGBot {
                 new RoleEvent(),
                 new MaxPlayersEvent(),
                 new MajorEvent(),
-                new LoadSaveEvent()
+                new SavesEvent()
         );
     }
 

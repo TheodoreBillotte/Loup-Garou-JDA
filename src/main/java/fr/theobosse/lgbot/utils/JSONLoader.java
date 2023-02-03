@@ -46,8 +46,20 @@ public class JSONLoader {
         game.getOptions().setNightMute(node.get("nightMute").asBoolean());
         game.getOptions().setDeadAreMuted(node.get("deadAreMuted").asBoolean());
 
+        game.getUtils().getRoles().clear();
         for (JsonNode role : node.get("roles"))
             game.getUtils().addRole(Roles.getRoleBySub(role.asText()));
+    }
+
+    public void removeSave(Game game, String save) {
+        ObjectNode node = (ObjectNode) json.get(game.getHost().getId());
+        node.remove(save);
+
+        try {
+            Files.write(Paths.get(ClassLoader.getSystemResource("saves.json").toURI()), mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json).getBytes());
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     public void saveData(Game game) {
@@ -72,15 +84,11 @@ public class JSONLoader {
         }
     }
 
-    public void reloadData() throws JsonProcessingException {
-        json = mapper.readTree(openJSON("saves.json"));
-    }
-
-    public StringSelectMenu getSaves(Player player) {
+    public StringSelectMenu getSaves(Player player, String id) {
         Iterator<String> it = json.get(player.getMember().getId()).fieldNames();
         if (!it.hasNext())
             return null;
-        StringSelectMenu.Builder builder = StringSelectMenu.create("load save").setPlaceholder("Choisissez une sauvegarde");
+        StringSelectMenu.Builder builder = StringSelectMenu.create(id).setPlaceholder("Choisissez une sauvegarde");
         while (it.hasNext()) {
             String save = it.next();
             builder.addOption(save, save);
@@ -92,15 +100,4 @@ public class JSONLoader {
         return json;
     }
 
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
-    public void setJson(JsonNode json) {
-        this.json = json;
-    }
-
-    public void setMapper(ObjectMapper mapper) {
-        this.mapper = mapper;
-    }
 }
