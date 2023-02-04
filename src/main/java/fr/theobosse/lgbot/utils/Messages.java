@@ -247,7 +247,7 @@ public class Messages {
         eb.setColor(Color.RED);
         eb.setTitle("La partie est terminée !");
         eb.addField("J'espère que vous avez aimé l'experience de jeu !",
-                game.getUtils().hasWinner() ? "Le gagnant est " + game.getUtils().getWinner().name() :
+                game.getUtils().hasWinner() ? "Le gagnant est " + game.getUtils().getWinner().getName() :
                 "La partie se termine sur une égalité !",
                 false);
         eb.setFooter("Les channels seront supprimés dans 30s !");
