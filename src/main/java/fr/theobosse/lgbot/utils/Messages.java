@@ -37,7 +37,6 @@ public class Messages {
         eb.setFooter("Vous pouvez cliquer sur les boutons ci-dessous pour " +
                 "sélectionner des actions.", "https://images.emojiterra.com/openmoji/v12.2/128px/1f43a.png");
 
-        eb.addBlankField(false);
         if (game.getState().equals(GameState.STARTING)) {
             eb.addField("VOTRE PARTIE DÉMARRERA DANS", String.valueOf(game.getStartTime()), false);
             eb.addBlankField(false);
@@ -47,8 +46,6 @@ public class Messages {
         for (Player player : game.getUtils().getPlayers()) {
             eb.addField(player.getMember().getEffectiveName(), player.getGame().getHost().equals(player.getMember()) ? "HOST" : "JOUEUR", true);
         }
-
-        eb.addBlankField(false);
 
         return eb;
     }
@@ -281,7 +278,7 @@ public class Messages {
         eb.setColor(Color.ORANGE);
         eb.setTitle("Il est temps de choisir le nouveau maire !");
         for (Player player : game.getUtils().getAlive())
-            eb.addField(player.getMember().getEffectiveName(), game.getUtils().getVotes().get(player) == null ? "0" :
+            eb.addField(player.getMember().getEffectiveName(), game.getUtils().getMajorVotes().get(player) == null ? "0" :
                     String.valueOf(game.getUtils().getMajorVotes().get(player)), true);
 
         eb.addField("Pour choisir le nouveau maire:",
@@ -314,10 +311,10 @@ public class Messages {
         builder.setDescription("Sauvegardes disponibles :");
         builder.setFooter("Sauvegardes");
 
-        LGBot.getLoader().getJson().get(game.getHost().getId()).fieldNames().forEachRemaining(s ->
-                builder.addField(s, "cliquez sur les boutons pour charger / supprimer cette sauvegarde", false)
-        );
-
+        if (LGBot.getLoader().getJson().get(game.getHost().getId()) != null)
+            LGBot.getLoader().getJson().get(game.getHost().getId()).fieldNames().forEachRemaining(s ->
+                    builder.addField(s, "cliquez sur les boutons pour charger / supprimer cette sauvegarde", false)
+            );
         return builder;
     }
 

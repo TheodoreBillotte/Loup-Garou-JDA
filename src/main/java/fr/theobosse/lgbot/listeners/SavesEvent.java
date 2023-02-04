@@ -22,8 +22,8 @@ public class SavesEvent extends ListenerAdapter {
         Game game = player.getGame();
 
         if (event.getComponentId().equals("save")) {
-            event.editMessageEmbeds(game.getMessages().getSavesMessage().build()).queue();
             LGBot.getLoader().saveData(game);
+            event.editMessageEmbeds(game.getMessages().getSavesMessage().build()).queue();
         } else if (event.getComponentId().equals("load save")) {
             event.reply("Choisissez la sauvegarde à charger")
                     .addActionRow(

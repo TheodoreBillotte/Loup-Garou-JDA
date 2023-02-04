@@ -27,6 +27,5 @@ public class MajorEvent extends ListenerAdapter {
         game.getUtils().setMajor(voted);
         game.getMessages().sendElectMessage();
         game.getUtils().setTime(0L);
-        game.getUtils().setDay(false);
     }
 }

@@ -30,11 +30,11 @@ public class JoinEvent extends ListenerAdapter {
         if (game.getOptions().gameIsOnInvite())
             game.getOptions().removeInvited(member);
 
+        event.reply("Vous avez rejoint la partie, rendez-vous dans le salon d'attente !")
+                .setEphemeral(true).queue();
         game.join(member);
         game.getMessages().updateInvitesMessages();
         game.getMessages().updateMainMessage();
-        event.reply("Vous avez rejoint la partie, rendez-vous dans le salon d'attente !")
-                .setEphemeral(true).queue();
     }
 
 }

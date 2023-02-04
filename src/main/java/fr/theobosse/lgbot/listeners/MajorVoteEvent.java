@@ -33,5 +33,6 @@ public class MajorVoteEvent extends ListenerAdapter {
         game.getUtils().getMajorVotes().putIfAbsent(voted, 0);
         game.getUtils().getMajorVotes().replace(voted, game.getUtils().getMajorVotes().get(voted) + 1);
         event.reply("Vous avez voté pour " + voted.getMember().getAsMention()).setEphemeral(true).queue();
+        game.getMessages().updateMajorMessages();
     }
 }
