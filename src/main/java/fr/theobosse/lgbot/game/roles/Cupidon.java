@@ -11,8 +11,10 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Cupidon extends Role {
 
@@ -23,7 +25,7 @@ public class Cupidon extends Role {
         setSubName("Cupidon");
         setClan(Clan.VILLAGE);
         setEmoji(Emotes.getEmote("cupid"));
-        setRound(Rounds.CUPID);
+        setRound(Rounds.CUPIDON);
 
         setDescription("Son objectif est d'éliminer tous les Loups-Garous. Dès le début de la partie, il doit former" +
                 " un couple de deux joueurs. Leur objectif sera de survivre ensemble, car si l'un d'eux meurt," +
@@ -46,19 +48,28 @@ public class Cupidon extends Role {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (!event.getComponentId().equals("cupidon play")) return;
+        if (!event.getComponentId().startsWith("cupidon")) return;
         Member member = event.getMember();
         if (member == null) return;
         Player player = GamesInfo.getPlayer(member);
         if (player == null) return;
         Game game = player.getGame();
 
-        if (playing.contains(player)) {
-            event.replyEmbeds(getCupidMessage().build())
-                    .addActionRow(
-                            Messages.getPlayerListSelectInteraction(game.getUtils().getAlive(),
-                                    "cupidon","Vos cibles").setRequiredRange(2, 2).build()
-                    ).queue();
+        if (event.getComponentId().equals("cupidon play")) {
+            if (playing.contains(player)) {
+                event.replyEmbeds(getCupidMessage().build())
+                        .addActionRow(
+                                Messages.getPlayerListSelectInteraction(game.getUtils().getAlive(),
+                                        "cupidon", "Vos cibles").setRequiredRange(2, 2).build()
+                        ).setEphemeral(true).queue();
+            }
+        } else {
+            String name = event.getComponentId().replace("cupidon ", "");
+            Player p = GamesInfo.getPlayer(name);
+            if (p == null) return;
+            List<Player> couple = game.getUtils().getCouple(p);
+            if (couple != null && couple.contains(player))
+                event.replyEmbeds(getSeeCoupleMessage(p).build()).setEphemeral(true).queue();
         }
     }
 
@@ -80,6 +91,7 @@ public class Cupidon extends Role {
             game.getUtils().getCouples().put(player, Arrays.asList(p1, p2));
             event.reply("Vous avez choisi " + p1.getMember().getEffectiveName() + " et " +
                             p2.getMember().getEffectiveName() + " pour être amoureux !").setEphemeral(true).queue();
+            sendCoupleMessage(player);
             player.getGame().getGameRunning().played();
             playing.remove(player);
         }
@@ -89,6 +101,13 @@ public class Cupidon extends Role {
         player.getGame().getChannelsManager().getVillageChannel().sendMessageEmbeds(getPlayMessage().build())
                 .addActionRow(
                         Button.success("cupidon play", "Jouer")
+                ).queue();
+    }
+
+    private void sendCoupleMessage(Player player) {
+        player.getGame().getChannelsManager().getVillageChannel().sendMessageEmbeds(getCoupleMessage().build())
+                .addActionRow(
+                        Button.success("cupidon " + player.getMember().getEffectiveName(), "Voir le couple")
                 ).queue();
     }
 
@@ -105,6 +124,24 @@ public class Cupidon extends Role {
         builder.setTitle("C'est au tour du cupidon");
         builder.setDescription("il peut choisir deux personnes pour qu'elles soient amoureuses");
         builder.setFooter("Il pourra gagner avec le couple !");
+        return builder;
+    }
+
+    private EmbedBuilder getCoupleMessage() {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle("Le couple a été choisi !");
+        builder.setDescription("Pour savoir si vous êtes en couple cliquez sur le bouton ci-dessous !");
+        builder.setColor(Color.PINK);
+        return builder;
+    }
+
+    private EmbedBuilder getSeeCoupleMessage(Player player) {
+        EmbedBuilder builder = new EmbedBuilder();
+        List<Player> couple = player.getGame().getUtils().getCouple(player);
+        builder.setTitle("Voici le couple pour cette partie:");
+        builder.setDescription(couple.get(0).getMember().getEffectiveName() + " et " +
+                couple.get(1).getMember().getEffectiveName());
+        builder.setColor(Color.PINK);
         return builder;
     }
 }

@@ -8,6 +8,8 @@ public class CancelAction extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         if (event.getComponentId().equals("cancel"))
-            event.getMessage().delete().queue();
+            try {
+                event.getMessage().delete().queue();
+            } catch (Exception ignored) {}
     }
 }

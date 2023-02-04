@@ -2,7 +2,7 @@ package fr.theobosse.lgbot.game.enums;
 
 public enum Rounds {
 
-    CUPID(1),
+    CUPIDON(1),
     KILLER(2),
     WEREWOLF(3),
     SEER(4),
